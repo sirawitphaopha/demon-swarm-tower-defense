@@ -1,107 +1,151 @@
-<!-- Demon Swarm TD v0.1.0 -->
+<!-- Demon Swarm TD v0.2.0 -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demon Swarm TD</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#1a3a08; font-family:'Segoe UI',sans-serif; display:flex; height:100vh; overflow:hidden; user-select:none; color:#d8f8a0; }
+body { background:#cdeeb0; font-family:'Segoe UI',sans-serif; display:flex; height:100vh; overflow:hidden; user-select:none; color:#234d0e; }
 
 /* ── MENU / SETTINGS ── */
 .fullscreen {
   position:fixed; inset:0; z-index:50;
-  background:linear-gradient(160deg,#071205 0%,#0f2408 50%,#071205 100%);
+  background:linear-gradient(160deg,#bdf06a 0%,#8fd84a 45%,#a6e85c 100%);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px;
 }
-.fullscreen h1 { font-size:50px; color:#a0f038; text-shadow:0 0 40px #50c010,0 3px 0 #143a04; letter-spacing:3px; }
-.fullscreen h2 { font-size:28px; color:#a0f038; }
-.fullscreen .sub { color:#70b040; font-size:14px; text-align:center; line-height:1.8; }
+.fullscreen h1 { font-size:50px; color:#2e6b12; text-shadow:0 2px 0 #fff,0 0 26px rgba(255,255,255,0.6); letter-spacing:3px; }
+.fullscreen h2 { font-size:28px; color:#2e6b12; text-shadow:0 1px 0 #fff; }
+.fullscreen .sub { color:#3a6e1c; font-size:14px; text-align:center; line-height:1.8; }
+.best-line { color:#c47a00; font-size:13px; text-align:center; font-weight:bold; }
 .menu-group { display:flex; flex-direction:column; gap:11px; align-items:center; }
 .mbtn {
-  background:linear-gradient(180deg,#284f0c,#172e08); border:2px solid #58b828;
-  color:#d8f8a0; padding:13px 55px; font-size:17px; border-radius:9px; cursor:pointer;
+  background:linear-gradient(180deg,#8ad83e,#5fb22a); border:2px solid #f4ffe0;
+  color:#143a04; font-weight:bold; padding:13px 55px; font-size:17px; border-radius:11px; cursor:pointer;
   min-width:210px; text-align:center; transition:all 0.18s;
-  box-shadow:0 4px 12px rgba(0,0,0,0.45);
+  box-shadow:0 4px 10px rgba(40,90,10,0.3);
 }
-.mbtn:hover { background:linear-gradient(180deg,#387018,#245010); border-color:#88e040; transform:translateY(-2px); }
-.mbtn.red { background:linear-gradient(180deg,#481010,#280808); border-color:#b83838; color:#ffb0a0; }
-.mbtn.red:hover { background:linear-gradient(180deg,#601818,#380c0c); border-color:#e05050; }
+.mbtn:hover { background:linear-gradient(180deg,#9ce84c,#6fc233); transform:translateY(-2px); }
+.mbtn.red { background:linear-gradient(180deg,#ff7a6a,#e0503a); border-color:#ffe0d8; color:#fff; }
+.mbtn.red:hover { background:linear-gradient(180deg,#ff8c7c,#f0604a); }
 
 .diff-row { display:flex; gap:10px; }
-.dbtn { background:#102008; border:2px solid #3a6018; color:#b0d880; padding:9px 20px; border-radius:6px; cursor:pointer; font-size:14px; transition:all 0.15s; }
-.dbtn:hover { background:#1e3c10; }
-.dbtn.sel { background:#2a6010; border-color:#80e030; color:#e8ffa0; box-shadow:0 0 8px #50c020; }
-.snote { color:#608040; font-size:11px; text-align:center; max-width:320px; line-height:1.6; }
+.dbtn { background:#f0fae0; border:2px solid #9cd060; color:#2e6b12; padding:9px 20px; border-radius:8px; cursor:pointer; font-size:14px; transition:all 0.15s; font-weight:bold; }
+.dbtn:hover { background:#e0f4c8; }
+.dbtn.sel { background:#6fc233; border-color:#2e6b12; color:#fff; box-shadow:0 0 8px rgba(110,194,51,0.7); }
+.snote { color:#4a7a26; font-size:11px; text-align:center; max-width:340px; line-height:1.6; }
 
 /* ── GAME LAYOUT ── */
 #gameUI { display:none; width:100%; flex-direction:row; }
 #sidebar {
-  width:205px; min-width:205px; background:#0f2008;
-  border-right:2px solid #3a7818;
+  width:205px; min-width:205px; background:#eaf7d8;
+  border-right:3px solid #7cc63e;
   display:flex; flex-direction:column; gap:5px; padding:8px;
   overflow-y:auto; height:100vh;
 }
-#canvasWrap { flex:1; display:flex; align-items:center; justify-content:center; background:#1a3a08; position:relative; }
-canvas { display:block; cursor:crosshair; }
+#canvasWrap { flex:1; display:flex; align-items:center; justify-content:center; background:#bfe89a; position:relative; }
+canvas { display:block; cursor:crosshair; box-shadow:0 0 0 2px #7cc63e; }
 
 /* sidebar elements */
-.sid-title { font-size:13px; color:#b0f050; font-weight:bold; text-align:center; padding:2px 0; }
-h3 { color:#90d840; font-size:11px; border-bottom:1px solid #2a5810; padding-bottom:2px; margin-top:2px; }
+.sid-title { font-size:13px; color:#2e6b12; font-weight:bold; text-align:center; padding:2px 0; }
+h3 { color:#3a7818; font-size:11px; border-bottom:1px solid #b0d880; padding-bottom:2px; margin-top:2px; }
 .stat { display:flex; justify-content:space-between; font-size:11px; }
-.stat span:first-child { color:#c0e898; }
-.stat span:last-child { color:#ffe040; font-weight:bold; }
+.stat span:first-child { color:#3a6e1c; }
+.stat span:last-child { color:#c47a00; font-weight:bold; }
 
 /* countdown box */
 #breakBox {
-  display:none; background:#0a1e06; border:2px solid #50a020;
-  border-radius:7px; padding:8px; text-align:center;
+  display:none; background:#dff0c8; border:2px solid #6fc233;
+  border-radius:8px; padding:8px; text-align:center;
 }
-#breakBox .blabel { font-size:10px; color:#80c040; margin-bottom:4px; }
-#breakBox .bnum { font-size:36px; font-weight:bold; color:#c8f060; line-height:1; }
-#breakBox .bsub { font-size:10px; color:#608030; margin-top:3px; }
+#breakBox .blabel { font-size:10px; color:#4a7a26; margin-bottom:4px; }
+#breakBox .bnum { font-size:36px; font-weight:bold; color:#2e8b12; line-height:1; }
+#breakBox .bsub { font-size:10px; color:#5a8a2c; margin-top:3px; }
+#btnSkip { margin-top:7px; }
 
 /* wave progress */
-#waveBox { background:#0a1e06; border:1px solid #2a5810; border-radius:5px; padding:6px; }
-.wlabel { font-size:11px; color:#90d840; font-weight:bold; }
-.wstatus { font-size:10px; color:#608030; margin-top:1px; }
-.wpbar-bg { height:5px; background:#1a3a08; border-radius:3px; margin-top:4px; }
-.wpbar { height:5px; background:#70d030; border-radius:3px; transition:width 0.5s; }
+#waveBox { background:#dff0c8; border:1px solid #a0c870; border-radius:6px; padding:6px; }
+.wlabel { font-size:11px; color:#2e6b12; font-weight:bold; }
+.wstatus { font-size:10px; color:#5a8a2c; margin-top:1px; }
+.wpbar-bg { height:5px; background:#c0dca0; border-radius:3px; margin-top:4px; }
+.wpbar { height:5px; background:#4caf2a; border-radius:3px; transition:width 0.3s; }
 
 /* tower buttons */
-.tbtn { background:#0e2208; border:1px solid #305818; border-radius:4px; padding:5px; cursor:pointer; font-size:10px; text-align:left; transition:background 0.15s; }
-.tbtn:hover { background:#182e10; }
-.tbtn.sel { background:#266010; border-color:#70d028; box-shadow:0 0 6px #48b818; }
+.tbtn { background:#f4fae8; border:1px solid #a0c870; border-radius:5px; padding:5px; cursor:pointer; font-size:10px; text-align:left; transition:background 0.15s; }
+.tbtn:hover { background:#e6f2d0; }
+.tbtn.sel { background:#bfe88a; border-color:#4caf2a; box-shadow:0 0 6px rgba(76,175,42,0.6); }
 .tbtn.poor { opacity:0.42; }
-.tbtn .tn { font-weight:bold; font-size:11px; color:#d0f898; }
-.tbtn .tc { color:#ffe040; }
-.tbtn .ts { color:#608040; font-size:9px; }
+.tbtn .tn { font-weight:bold; font-size:11px; color:#234d0e; }
+.tbtn .tc { color:#c47a00; }
+.tbtn .ts { color:#5a8a2c; font-size:9px; }
+.tbtn .tk { color:#88a860; font-size:9px; float:right; }
 
-#info { background:#0e2208; border:1px solid #2a5810; border-radius:4px; padding:6px; font-size:10px; min-height:62px; color:#b0e070; line-height:1.6; }
+#info { background:#f4fae8; border:1px solid #a0c870; border-radius:5px; padding:6px; font-size:10px; min-height:62px; color:#3a6e1c; line-height:1.6; }
 #acts { display:none; flex-direction:column; gap:3px; }
 
-.btn { background:#142a08; border:1px solid #488020; color:#d0f898; padding:5px; border-radius:4px; cursor:pointer; font-size:11px; width:100%; transition:background 0.15s; }
-.btn:hover { background:#224010; }
-.btn:disabled { opacity:0.35; cursor:default; }
-.btn-sell { background:#321008; border-color:#903828; color:#ffb0a0; }
-.btn-sell:hover { background:#4e1410; }
+.btn { background:#dff0c8; border:1px solid #6fc233; color:#234d0e; padding:5px; border-radius:5px; cursor:pointer; font-size:11px; width:100%; transition:background 0.15s; font-weight:bold; }
+.btn:hover { background:#cce8a8; }
+.btn:disabled { opacity:0.4; cursor:default; }
+.btn-sell { background:#ffe0d8; border-color:#e0705a; color:#b03020; }
+.btn-sell:hover { background:#ffcfc4; }
 
 .bottom-btns { margin-top:auto; display:flex; flex-direction:column; gap:4px; padding-top:4px; }
-.bbtn { background:#0c1e06; border:1px solid #3a6818; color:#c0e898; padding:5px; border-radius:4px; cursor:pointer; font-size:11px; width:100%; transition:background 0.15s; }
-.bbtn:hover { background:#183010; }
-.bbtn.pause-active { background:#2a1e06; border-color:#c0a028; color:#ffe070; }
+.bbtn { background:#e6f2d0; border:1px solid #8cc050; color:#2e6b12; padding:5px; border-radius:5px; cursor:pointer; font-size:11px; width:100%; transition:background 0.15s; font-weight:bold; }
+.bbtn:hover { background:#d6ecb8; }
+.bbtn.pause-active { background:#ffe9a8; border-color:#d0a028; color:#9a6a00; }
+.bbtn.red { background:#ffe0d8; border-color:#e0705a; color:#b03020; }
+.bbtn.red:hover { background:#ffcfc4; }
 
 /* end overlay */
 #endOverlay {
   position:absolute; inset:0; background:rgba(5,15,3,0.88);
   display:none; flex-direction:column; align-items:center; justify-content:center; z-index:20;
 }
-#endOverlay h1 { font-size:44px; color:#a0f038; text-shadow:0 0 30px #50c010; margin-bottom:10px; }
-#endOverlay .sub { color:#80c050; font-size:13px; text-align:center; margin-bottom:22px; line-height:1.9; }
-.ebtn { background:#1e5808; border:2px solid #58c028; color:#e8ffa0; padding:10px 42px; font-size:16px; border-radius:8px; cursor:pointer; margin:4px; }
-.ebtn:hover { background:#2e7810; }
+#endOverlay h1 { font-size:44px; color:#bdf06a; text-shadow:0 0 24px rgba(255,255,255,0.5); margin-bottom:10px; }
+#endOverlay .sub { color:#e8ffc8; font-size:13px; text-align:center; margin-bottom:22px; line-height:1.9; }
+.ebtn { background:#6fc233; border:2px solid #f4ffe0; color:#fff; font-weight:bold; padding:10px 42px; font-size:16px; border-radius:9px; cursor:pointer; margin:4px; }
+.ebtn:hover { background:#7fd243; }
 
-#toast { position:fixed; top:18px; left:50%; transform:translateX(-50%); background:rgba(150,15,15,0.95); color:#fff; padding:7px 18px; border-radius:5px; font-size:13px; z-index:100; pointer-events:none; display:none; }
+#toast { position:fixed; top:18px; left:50%; transform:translateX(-50%); background:rgba(210,90,20,0.96); color:#fff; padding:7px 18px; border-radius:6px; font-size:13px; z-index:100; pointer-events:none; display:none; font-weight:bold; }
+
+.hint { color:#506830; font-size:9px; line-height:1.5; text-align:center; padding:2px; }
+
+/* ── MAP EDITOR ── */
+#editorScreen { position:fixed; inset:0; z-index:50; display:flex; flex-direction:row; background:#bfe89a; }
+#edSidebar {
+  width:210px; min-width:210px; background:#eaf7d8; border-right:3px solid #7cc63e;
+  display:flex; flex-direction:column; gap:5px; padding:8px; overflow-y:auto; height:100vh;
+}
+#edCanvasWrap { flex:1; display:flex; align-items:center; justify-content:center; background:#bfe89a; position:relative; }
+#edc { display:block; cursor:crosshair; box-shadow:0 0 0 2px #7cc63e; }
+.ed-hint { font-size:10px; color:#5a8a2c; text-align:center; line-height:1.5; padding:2px 0; }
+#edTools, #edThemes { display:flex; flex-direction:column; gap:4px; }
+.edtool, .edth {
+  background:#f4fae8; border:1px solid #a0c870; color:#2e6b12; padding:6px 8px;
+  border-radius:6px; cursor:pointer; font-size:12px; text-align:left; transition:background 0.15s; font-weight:bold;
+}
+.edtool:hover, .edth:hover { background:#e6f2d0; }
+.edtool.sel, .edth.sel { background:#6fc233; border-color:#2e6b12; color:#fff; box-shadow:0 0 6px rgba(110,194,51,0.6); }
+.ed-input {
+  width:100%; padding:6px 8px; border:1px solid #a0c870; border-radius:6px;
+  background:#fff; color:#234d0e; font-size:12px; font-family:inherit;
+}
+.ed-input:focus { outline:none; border-color:#4caf2a; }
+/* map list */
+#mapList { display:flex; flex-direction:column; gap:8px; max-height:52vh; overflow-y:auto; width:380px; }
+.map-row {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:#eaf7d8; border:2px solid #9cd060; border-radius:9px; padding:9px 13px;
+}
+.map-row .mname { color:#2e6b12; font-weight:bold; font-size:15px; }
+.map-row .msub { color:#5a8a2c; font-size:11px; }
+.map-row .mbtns { display:flex; gap:6px; }
+.map-mini { background:#6fc233; border:none; color:#fff; font-weight:bold; padding:7px 16px; border-radius:7px; cursor:pointer; font-size:13px; }
+.map-mini:hover { background:#7fd243; }
+.map-mini.del { background:#ff7a6a; }
+.map-mini.del:hover { background:#ff8c7c; }
+.map-empty { color:#3a6e1c; font-size:14px; text-align:center; }
 </style>
 </head>
 <body>
@@ -110,10 +154,13 @@ h3 { color:#90d840; font-size:11px; border-bottom:1px solid #2a5810; padding-bot
 <div class="fullscreen" id="menuScreen">
   <h1>⚔️ DEMON SWARM TD</h1>
   <div class="sub">วางป้อมขวางทางแมลงปีศาจ<br>ป้องกันไม่ให้หลุดออกทางขวาเกิน 20 ตัว</div>
+  <div class="best-line" id="bestMenu"></div>
   <div class="menu-group">
     <button class="mbtn" onclick="doStartGame()">🎮 เริ่มเกม</button>
+    <button class="mbtn" onclick="openEditor()">🛠️ สร้างแมพ</button>
+    <button class="mbtn" onclick="showMaps()">🗂️ แมพของฉัน</button>
     <button class="mbtn" onclick="showScreen('settingsScreen')">⚙️ ตั้งค่า</button>
-    <button class="mbtn red" onclick="showScreen('menuScreen')">🚪 ออก (กลับ Menu)</button>
+    <button class="mbtn" onclick="showScreen('helpScreen')">📖 วิธีเล่น</button>
   </div>
 </div>
 
@@ -121,7 +168,7 @@ h3 { color:#90d840; font-size:11px; border-bottom:1px solid #2a5810; padding-bot
 <div class="fullscreen" id="settingsScreen" style="display:none">
   <h2>⚙️ ตั้งค่า</h2>
   <div class="setting-block">
-    <div class="snote" style="color:#90d060;font-size:13px;margin-bottom:6px">ความยาก</div>
+    <div class="snote" style="color:#2e6b12;font-size:13px;margin-bottom:6px">ความยาก</div>
     <div class="diff-row">
       <button class="dbtn" id="d-easy"   onclick="setDiff('easy')">🟢 ง่าย</button>
       <button class="dbtn sel" id="d-normal" onclick="setDiff('normal')">🟡 ปกติ</button>
@@ -133,6 +180,91 @@ h3 { color:#90d840; font-size:11px; border-bottom:1px solid #2a5810; padding-bot
       ยาก: ศัตรู HP ×1.4, ได้เงิน ×0.8
     </div>
   </div>
+  <div class="setting-block" style="margin-top:10px">
+    <div class="snote" style="color:#2e6b12;font-size:13px;margin-bottom:6px">โหมดเกม</div>
+    <div class="diff-row">
+      <button class="dbtn sel" id="gm-normal"  onclick="setGameMode('normal')">🏁 10 เวฟ</button>
+      <button class="dbtn" id="gm-endless" onclick="setGameMode('endless')">♾️ ไม่สิ้นสุด</button>
+    </div>
+    <div class="snote" style="margin-top:8px">
+      10 เวฟ: เคลียร์ครบ 10 เวฟ คือชนะ<br>
+      ไม่สิ้นสุด: บุกไม่หยุด เวฟยิ่งสูงยิ่งโหด สู้ให้ได้ไกลที่สุด
+    </div>
+  </div>
+  <div class="setting-block" style="margin-top:10px">
+    <div class="snote" style="color:#2e6b12;font-size:13px;margin-bottom:6px">ธีมแมพ</div>
+    <div class="diff-row" style="flex-wrap:wrap;justify-content:center;max-width:360px">
+      <button class="dbtn sel" id="mt-meadow" onclick="setMapTheme('meadow')">🌳 ทุ่งหญ้า</button>
+      <button class="dbtn" id="mt-forest" onclick="setMapTheme('forest')">🌲 ป่าสน</button>
+      <button class="dbtn" id="mt-bloom"  onclick="setMapTheme('bloom')">🌸 ทุ่งดอกไม้</button>
+      <button class="dbtn" id="mt-oasis"  onclick="setMapTheme('oasis')">🏝️ โอเอซิส</button>
+    </div>
+    <div class="snote" style="margin-top:8px">
+      แต่ละธีมพื้นหญ้าเขียวสด มีต้นไม้ แอ่งน้ำ ดอกไม้ สุ่มตำแหน่งใหม่ทุกครั้ง<br>
+      สิ่งกีดขวางวางป้อมทับไม่ได้ ศัตรูต้องเดินอ้อม
+    </div>
+  </div>
+  <button class="mbtn" onclick="showScreen('menuScreen')">← กลับ</button>
+</div>
+
+<!-- HELP -->
+<div class="fullscreen" id="helpScreen" style="display:none">
+  <h2>📖 วิธีเล่น</h2>
+  <div class="snote" style="font-size:13px;line-height:2;max-width:440px;color:#3a6e1c">
+    🏰 เลือกป้อมจากแถบซ้าย แล้วคลิกบนสนามเพื่อวาง<br>
+    🧱 วางป้อมต่อกันเป็นเขาวงกตเพื่อบังคับให้ศัตรูเดินอ้อม (ยิ่งทางยาว ยิ่งยิงได้นาน)<br>
+    🚫 ห้ามวางจนปิดทางทั้งหมด ระบบจะไม่ให้วาง<br>
+    🦟 แตนปีศาจ "บินข้ามป้อม" ได้ ต้องมีป้อมคุมแนวกลาง<br>
+    ⬆️ คลิกป้อมที่วางแล้วเพื่ออัปเกรด ขาย หรือเปลี่ยนเป้าเล็ง<br>
+    💀 อย่าให้ศัตรูหลุดเกิน 20 ตัว มิฉะนั้นแพ้
+  </div>
+  <div class="snote" style="color:#4a7a26;font-size:12px">
+    ⌨️ คีย์ลัด: กด 1-6 เลือกป้อม | Space หยุด/เล่นต่อ | Esc ยกเลิก
+  </div>
+  <button class="mbtn" onclick="showScreen('menuScreen')">← กลับ</button>
+</div>
+
+<!-- MAP EDITOR -->
+<div id="editorScreen" style="display:none">
+  <div id="edSidebar">
+    <div class="sid-title">🛠️ สร้างแมพ</div>
+    <div class="ed-hint">ลากเมาส์บนสนามเพื่อวาด · คลิกขวาเพื่อลบ</div>
+
+    <h3>🖌️ เครื่องมือ</h3>
+    <div id="edTools">
+      <button class="edtool sel" data-tool="tree">🌳 ต้นไม้</button>
+      <button class="edtool" data-tool="water">💧 แอ่งน้ำ</button>
+      <button class="edtool" data-tool="rock">🪨 หิน</button>
+      <button class="edtool" data-tool="grass">🌿 หญ้า</button>
+      <button class="edtool" data-tool="flower">🌸 ดอกไม้</button>
+      <button class="edtool" data-tool="erase">🧽 ยางลบ</button>
+    </div>
+
+    <h3>🎨 พื้นธีม</h3>
+    <div id="edThemes">
+      <button class="edth sel" data-th="meadow">🌳 ทุ่งหญ้า</button>
+      <button class="edth" data-th="forest">🌲 ป่าสน</button>
+      <button class="edth" data-th="bloom">🌸 ดอกไม้</button>
+      <button class="edth" data-th="oasis">🏝️ โอเอซิส</button>
+    </div>
+
+    <h3>💾 บันทึก</h3>
+    <input id="edName" class="ed-input" type="text" maxlength="24" placeholder="ตั้งชื่อแมพ">
+    <button class="btn" id="edSaveBtn">💾 บันทึกแมพ</button>
+
+    <div class="bottom-btns">
+      <button class="bbtn" id="edPlayBtn">▶️ ทดลองเล่น</button>
+      <button class="bbtn" id="edClearBtn">🧹 ล้างทั้งหมด</button>
+      <button class="bbtn red" onclick="quitToMenu()">🚪 กลับเมนู</button>
+    </div>
+  </div>
+  <div id="edCanvasWrap"><canvas id="edc"></canvas></div>
+</div>
+
+<!-- MY MAPS -->
+<div class="fullscreen" id="mapsScreen" style="display:none">
+  <h2>🗂️ แมพของฉัน</h2>
+  <div id="mapList"></div>
   <button class="mbtn" onclick="showScreen('menuScreen')">← กลับ</button>
 </div>
 
@@ -144,8 +276,10 @@ h3 { color:#90d840; font-size:11px; border-bottom:1px solid #2a5810; padding-bot
     <!-- break countdown -->
     <div id="breakBox">
       <div class="blabel">🕐 เตรียมตัว</div>
-      <div class="bnum" id="bnum">60</div>
+      <div class="bnum" id="bnum">18</div>
       <div class="bsub" id="bsub">วิ ก่อน Wave ถัดไป</div>
+      <button class="btn" id="btnSkip">▶️ เริ่มเวฟเลย</button>
+      <button class="btn" id="btnRegen" style="margin-top:4px;display:none">🗺️ สุ่มแมพใหม่</button>
     </div>
 
     <!-- wave info -->
@@ -168,24 +302,26 @@ h3 { color:#90d840; font-size:11px; border-bottom:1px solid #2a5810; padding-bot
     <div id="info">← เลือกป้อมเพื่อวาง<br>คลิกป้อมที่วางแล้วเพื่อดูข้อมูล</div>
     <div id="acts">
       <button class="btn" id="btnUpg">⬆️ Upgrade</button>
+      <button class="btn" id="btnTarget">🎯 เป้า: หน้าสุด</button>
       <button class="btn btn-sell" id="btnSell">🗑️ ขาย (50%)</button>
     </div>
 
     <div class="bottom-btns">
       <button class="bbtn" id="btnPause">⏸ Pause</button>
       <button class="bbtn" id="btnSpd">⚡ Speed x1</button>
-      <button class="bbtn red" onclick="showScreen('menuScreen')" style="border-color:#903828;color:#ffb0a0;">🚪 Menu</button>
+      <button class="bbtn" id="btnMute">🔊 เสียง: เปิด</button>
+      <button class="bbtn red" onclick="quitToMenu()">🚪 Menu</button>
     </div>
   </div>
 
   <div id="canvasWrap">
     <canvas id="gc"></canvas>
     <div id="endOverlay">
-      <h1 id="endTitle">🏆 ชนะ!</h1>
+      <h1 id="endTitle">🏆 ชนะ</h1>
       <div class="sub" id="endSub"></div>
       <div>
         <button class="ebtn" onclick="doStartGame()">🔄 เล่นใหม่</button>
-        <button class="ebtn" onclick="showScreen('menuScreen')">🏠 Menu</button>
+        <button class="ebtn" onclick="quitToMenu()">🏠 Menu</button>
       </div>
     </div>
   </div>
@@ -211,7 +347,7 @@ let CELL=22, CW, CH;
 let canvas, ctx;
 const SPAWN_ROW = Math.floor(ROWS/2); // row กลาง ด้านซ้าย
 const SPAWN_GUARD = 2;                // ห้ามวางใน 2 ช่องแรก
-const BREAK_SEC = 60;
+const BREAK_SEC = 18;                 // เวลาพักระหว่างเวฟ
 
 // ── TOWER DEFS ────────────────────────────────────────
 const TOWERS = {
@@ -224,12 +360,16 @@ const TOWERS = {
 };
 const TORDER=['stone','arrow','crossbow','cannon','machinegun','laser'];
 
+// ── TARGETING MODES ───────────────────────────────────
+const TARGET_MODES=['first','last','strong','weak'];
+const TARGET_NAME={first:'หน้าสุด',last:'หลังสุด',strong:'เลือดมาก',weak:'เลือดน้อย'};
+
 // ── ENEMY DEFS ────────────────────────────────────────
 const ENEMIES = {
   maggot:{name:'หนอนปีศาจ',emoji:'🐛',hp:70,  spd:55, reward:20, col:'#7a3a1a',sz:0.38},
   beetle:{name:'ด้วงนรก',  emoji:'🪲',hp:45,  spd:100,reward:25, col:'#2a5a1a',sz:0.33},
   scarab:{name:'มอดเกราะ', emoji:'🦗',hp:240, spd:38, reward:55, col:'#6a5a10',sz:0.48},
-  wasp:  {name:'แตนปีศาจ', emoji:'🦟',hp:90,  spd:130,reward:30, col:'#7a2080',sz:0.36},
+  wasp:  {name:'แตนปีศาจ', emoji:'🦟',hp:90,  spd:115,reward:30, col:'#7a2080',sz:0.36, fly:true},
   spider:{name:'แมงมุมผี', emoji:'🕷️',hp:150, spd:72, reward:40, col:'#3a1a6a',sz:0.43},
   boss:  {name:'ราชาแมลง', emoji:'👾',hp:1100,spd:30, reward:200,col:'#8a1010',sz:0.70},
 };
@@ -237,16 +377,16 @@ const ENEMIES = {
 // ── WAVE CONFIG (10 waves, auto-spawn ตลอด dur วิ) ───
 // dur=วินาทีที่ spawn, pool=ประเภทสุ่ม, iv=interval/ตัว, sc=HP scale, bIv=boss ทุกกี่วิ (0=ไม่มี)
 const WAVE_CFG = [
-  {dur:300,pool:['maggot'],                  iv:5.0,sc:1.0, bIv:0 }, // W1  ~5min 60ตัว ~1200g
-  {dur:300,pool:['maggot','beetle'],          iv:4.0,sc:1.12,bIv:0 }, // W2  ~1600g
-  {dur:300,pool:['beetle','scarab'],          iv:3.5,sc:1.25,bIv:0 }, // W3
-  {dur:300,pool:['maggot','wasp'],            iv:3.0,sc:1.4, bIv:0 }, // W4
-  {dur:330,pool:['scarab','wasp'],            iv:2.5,sc:1.55,bIv:0 }, // W5
-  {dur:330,pool:['wasp','spider'],            iv:2.0,sc:1.75,bIv:0 }, // W6
-  {dur:360,pool:['spider','wasp'],            iv:1.8,sc:2.0, bIv:90}, // W7 +boss
-  {dur:360,pool:['spider','scarab'],          iv:1.6,sc:2.3, bIv:72}, // W8
-  {dur:390,pool:['spider','wasp','scarab'],   iv:1.4,sc:2.6, bIv:58}, // W9
-  {dur:420,pool:['spider','wasp','scarab'],   iv:1.2,sc:3.0, bIv:44}, // W10
+  {dur:30,pool:['maggot'],                  iv:1.8,sc:1.0, bIv:0 }, // W1
+  {dur:32,pool:['maggot','beetle'],          iv:1.6,sc:1.15,bIv:0 }, // W2
+  {dur:34,pool:['beetle','scarab'],          iv:1.5,sc:1.3, bIv:0 }, // W3
+  {dur:36,pool:['maggot','wasp'],            iv:1.3,sc:1.45,bIv:0 }, // W4
+  {dur:38,pool:['scarab','wasp'],            iv:1.2,sc:1.6, bIv:0 }, // W5
+  {dur:40,pool:['wasp','spider'],            iv:1.1,sc:1.8, bIv:0 }, // W6
+  {dur:42,pool:['spider','wasp'],            iv:1.0,sc:2.0, bIv:20}, // W7 +boss
+  {dur:44,pool:['spider','scarab'],          iv:0.95,sc:2.3,bIv:18}, // W8
+  {dur:46,pool:['spider','wasp','scarab'],   iv:0.85,sc:2.6,bIv:15}, // W9
+  {dur:50,pool:['spider','wasp','scarab'],   iv:0.75,sc:3.0,bIv:12}, // W10
 ];
 
 // ── DIFFICULTY ────────────────────────────────────────
@@ -257,29 +397,125 @@ function setDiff(d){
   ['easy','normal','hard'].forEach(x=>document.getElementById('d-'+x).classList.toggle('sel',x===d));
 }
 
+// ── GAME MODE ─────────────────────────────────────────
+let gameMode='normal'; // 'normal' = 10 เวฟ | 'endless' = ไม่สิ้นสุด
+function setGameMode(m){
+  gameMode=m;
+  ['normal','endless'].forEach(x=>document.getElementById('gm-'+x).classList.toggle('sel',x===m));
+}
+const BASE_WAVES=WAVE_CFG.length;
+// คืนค่าตั้งค่าเวฟ n; เวฟเกิน 10 (โหมดไม่สิ้นสุด) สร้างอัตโนมัติให้ยากขึ้นเรื่อยๆ
+function getWaveCfg(n){
+  if(n<=BASE_WAVES) return WAVE_CFG[n-1];
+  const over=n-BASE_WAVES; // 1,2,3...
+  return {
+    dur: 48,
+    pool: over%4===0 ? ['scarab','spider','wasp','beetle'] : ['spider','wasp','scarab'],
+    iv:  Math.max(0.45, 0.72 - over*0.03),
+    sc:  3.0 * Math.pow(1.16, over),   // เลือดศัตรูโตขึ้นเรื่อยๆ
+    bIv: Math.max(7, 12 - over*0.4),   // บอสมาถี่ขึ้น
+  };
+}
+function isWin(){ return gameMode==='normal' && wave>=BASE_WAVES; }
+function waveTotalLabel(){ return gameMode==='endless' ? '∞' : String(BASE_WAVES); }
+
+// ── MAP THEMES (พื้นหญ้าเขียวทุกธีม โทนสว่าง) ────────
+const THEMES = {
+  meadow: { name:'ทุ่งหญ้า',     emoji:'🌳', top:'#9be84f', bot:'#73cf38', tex:'rgba(60,150,20,', obs:['tree'],         dec:['grass','flower'], ponds:[1,2] },
+  forest: { name:'ป่าสน',        emoji:'🌲', top:'#86d843', bot:'#5fb82d', tex:'rgba(40,120,15,', obs:['pine','rock'],  dec:['grass','bush'],   ponds:[1,2] },
+  bloom:  { name:'ทุ่งดอกไม้',   emoji:'🌸', top:'#aef061', bot:'#8ce046', tex:'rgba(80,170,30,', obs:['blossom'],      dec:['flower','flower'],ponds:[1,2] },
+  oasis:  { name:'โอเอซิส',      emoji:'🏝️', top:'#a4e85a', bot:'#7ad84a', tex:'rgba(70,160,40,', obs:['palm'],         dec:['grass','flower'], ponds:[2,3] },
+};
+const THORDER=['meadow','forest','bloom','oasis'];
+let mapTheme='meadow';
+function setMapTheme(m){
+  mapTheme=m;
+  THORDER.forEach(x=>document.getElementById('mt-'+x)?.classList.toggle('sel',x===m));
+}
+
 // ── STATE ─────────────────────────────────────────────
-let grid;
+let grid, dist;
 let towers,enemies,projs,parts;
-let gold,lives,kills,wave,speed,paused;
+let mapObstacles=[], decor=[], ponds=[];
+let gold,lives,kills,wave,speed,paused,gameOver;
 let gamePhase; // 'playing' | 'break'
 let waveElapsed,spawnTimer,bossTimer,breakRemain;
 let selType,selTower;
 let mouseCol=-1,mouseRow=-1;
 let lastTs=0,raf;
+let muted=false, audioCtx=null, lastShootSfx=0;
+let editMode=false, editTool='tree', edPainting=false, edMouseCol=-1, edMouseRow=-1;
+let activeCustomMap=null, customMaps=[];
+
+// ── HIGH SCORE ────────────────────────────────────────
+function loadBest(){ try{ return JSON.parse(localStorage.getItem('demonSwarmBest'))||{wave:0,kills:0}; }catch(e){ return {wave:0,kills:0}; } }
+function saveBest(b){ try{ localStorage.setItem('demonSwarmBest',JSON.stringify(b)); }catch(e){} }
+function showBestMenu(){
+  const b=loadBest();
+  const el=document.getElementById('bestMenu');
+  el.textContent = b.wave>0 ? `🏅 สถิติสูงสุด: ถึง Wave ${b.wave} | ฆ่า ${b.kills} ตัว` : '';
+}
+
+// ── AUDIO (สร้างเสียงเองด้วย Web Audio) ──────────────
+function initAudio(){
+  if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; } }
+  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
+}
+function sfx(type){
+  if(muted||!audioCtx) return;
+  const t=audioCtx.currentTime;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+  o.connect(g); g.connect(audioCtx.destination);
+  let f=440,dur=0.08,wv='square',vol=0.05;
+  switch(type){
+    case 'shoot':  f=900; dur=0.04; wv='square';   vol=0.022; break;
+    case 'cannon': f=130; dur=0.18; wv='sawtooth'; vol=0.09;  break;
+    case 'die':    f=320; dur=0.07; wv='triangle'; vol=0.06;  break;
+    case 'place':  f=520; dur=0.10; wv='sine';     vol=0.08;  break;
+    case 'hurt':   f=170; dur=0.16; wv='sawtooth'; vol=0.10;  break;
+    case 'boss':   f=70;  dur=0.50; wv='sawtooth'; vol=0.13;  break;
+    case 'upg':    f=680; dur=0.12; wv='sine';     vol=0.08;  break;
+    case 'win':    f=620; dur=0.45; wv='triangle'; vol=0.11;  break;
+    case 'lose':   f=140; dur=0.65; wv='sawtooth'; vol=0.12;  break;
+  }
+  o.type=wv; o.frequency.setValueAtTime(f,t);
+  if(type==='die')  o.frequency.exponentialRampToValueAtTime(f*0.5,t+dur);
+  if(type==='win')  o.frequency.linearRampToValueAtTime(f*1.7,t+dur);
+  if(type==='upg')  o.frequency.linearRampToValueAtTime(f*1.4,t+dur);
+  if(type==='lose'||type==='boss') o.frequency.exponentialRampToValueAtTime(f*0.5,t+dur);
+  g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.start(t); o.stop(t+dur+0.02);
+}
 
 // ── SCREENS ───────────────────────────────────────────
 function showScreen(id){
-  ['menuScreen','settingsScreen'].forEach(s=>{
+  ['menuScreen','settingsScreen','helpScreen','mapsScreen'].forEach(s=>{
     document.getElementById(s).style.display = s===id?'flex':'none';
   });
   document.getElementById('gameUI').style.display = 'none';
+  document.getElementById('editorScreen').style.display = 'none';
+  editMode=false;
+  if(raf) cancelAnimationFrame(raf);
+  if(id==='menuScreen') showBestMenu();
+  if(id==='mapsScreen') renderMapList();
+}
+function quitToMenu(){
+  gameOver=true;
+  if(raf) cancelAnimationFrame(raf);
+  showScreen('menuScreen');
 }
 
 function doStartGame(){
+  activeCustomMap=null; // เริ่มเกมจากเมนู = แมพสุ่ม
   document.getElementById('menuScreen').style.display='none';
   document.getElementById('settingsScreen').style.display='none';
+  document.getElementById('helpScreen').style.display='none';
+  document.getElementById('mapsScreen').style.display='none';
+  document.getElementById('editorScreen').style.display='none';
   document.getElementById('gameUI').style.display='flex';
   document.getElementById('endOverlay').style.display='none';
+  initAudio();
   initGame();
 }
 
@@ -290,36 +526,64 @@ function init(){
   resize();
   window.addEventListener('resize',resize);
   canvas.addEventListener('mousemove',onMM);
+  canvas.addEventListener('mouseleave',()=>{mouseCol=-1;mouseRow=-1;});
   canvas.addEventListener('click',onClick);
   canvas.addEventListener('contextmenu',e=>{e.preventDefault();deselect();});
+  window.addEventListener('keydown',onKey);
   document.getElementById('btnPause').addEventListener('click',togglePause);
   document.getElementById('btnSpd').addEventListener('click',toggleSpd);
+  document.getElementById('btnMute').addEventListener('click',toggleMute);
+  document.getElementById('btnSkip').addEventListener('click',skipBreak);
+  document.getElementById('btnRegen').addEventListener('click',regenMap);
   document.getElementById('btnUpg').addEventListener('click',doUpgrade);
+  document.getElementById('btnTarget').addEventListener('click',cycleTarget);
   document.getElementById('btnSell').addEventListener('click',doSell);
+
+  // ── Map editor wiring ──
+  customMaps=loadMaps();
+  const edc=document.getElementById('edc');
+  edc.addEventListener('mousedown',e=>{ if(e.button!==0) return; edPainting=true; const [c,r]=edCellAt(e); edPaintCell(c,r); });
+  edc.addEventListener('mousemove',e=>{ const [c,r]=edCellAt(e); edMouseCol=c; edMouseRow=r; if(edPainting) edPaintCell(c,r); });
+  edc.addEventListener('mouseleave',()=>{ edMouseCol=-1; edMouseRow=-1; edPainting=false; });
+  edc.addEventListener('contextmenu',e=>{ e.preventDefault(); const [c,r]=edCellAt(e); const old=editTool; editTool='erase'; edPaintCell(c,r); editTool=old; });
+  window.addEventListener('mouseup',()=>{ edPainting=false; });
+  document.querySelectorAll('#edTools .edtool').forEach(b=>b.addEventListener('click',()=>setEdTool(b.dataset.tool)));
+  document.querySelectorAll('#edThemes .edth').forEach(b=>b.addEventListener('click',()=>setEdTheme(b.dataset.th)));
+  document.getElementById('edSaveBtn').addEventListener('click',edSave);
+  document.getElementById('edPlayBtn').addEventListener('click',edPlay);
+  document.getElementById('edClearBtn').addEventListener('click',edClear);
+
   buildBtns();
+  showBestMenu();
 }
 
 function resize(){
-  const wrap=document.getElementById('canvasWrap');
+  const wrap=document.getElementById(editMode?'edCanvasWrap':'canvasWrap');
   CELL=Math.max(14,Math.floor(Math.min(wrap.clientWidth/COLS,wrap.clientHeight/ROWS)));
   CW=COLS*CELL; CH=ROWS*CELL;
   canvas.width=CW; canvas.height=CH;
+  // ปรับตำแหน่งป้อม/waypoint ตาม CELL ใหม่
+  if(towers) towers.forEach(t=>{t.x=t.col*CELL+CELL/2;t.y=t.row*CELL+CELL/2;});
 }
 
 function initGame(){
-  gold=200; lives=20; kills=0; wave=0; speed=1; paused=false;
+  editMode=false;
+  canvas=document.getElementById('gc'); ctx=canvas.getContext('2d'); // กลับมาใช้ canvas เกม
+  resize(); // คำนวณขนาดสนามใหม่ตามพื้นที่จริง (หน้าเกมแสดงแล้ว)
+  gold=200; lives=20; kills=0; wave=0; speed=1; paused=false; gameOver=false;
   towers=[]; enemies=[]; projs=[]; parts=[];
   spawnTimer=0; bossTimer=0; waveElapsed=0; breakRemain=0;
   selType=null; selTower=null;
   grid=Array.from({length:ROWS},()=>new Uint8Array(COLS));
+  if(activeCustomMap) loadCustomIntoGame(activeCustomMap); // เล่นแมพที่สร้างเอง
+  else generateMap();                                       // แมพสุ่ม
   document.getElementById('btnPause').textContent='⏸ Pause';
   document.getElementById('btnPause').classList.remove('pause-active');
   document.getElementById('btnSpd').textContent='⚡ Speed x1';
   deselect(); updateHUD();
   if(raf) cancelAnimationFrame(raf);
   lastTs=performance.now();
-  // เริ่ม wave แรกทันที
-  beginWave(1);
+  beginBreak(); // ช่วงเตรียมตัวก่อน Wave 1 (วางป้อมก่อนได้)
   raf=requestAnimationFrame(loop);
 }
 
@@ -327,11 +591,11 @@ function initGame(){
 function buildBtns(){
   const cont=document.getElementById('towerBtns');
   cont.innerHTML='';
-  TORDER.forEach(id=>{
+  TORDER.forEach((id,i)=>{
     const t=TOWERS[id];
     const d=document.createElement('div');
     d.className='tbtn'; d.id='tb-'+id;
-    d.innerHTML=`<div class="tn">${t.emoji} ${t.name}</div><div class="tc">💰${t.cost}</div><div class="ts">📏${t.range} ⚔️${t.dmg} ⏱${t.rate}/s</div>`;
+    d.innerHTML=`<div class="tn">${t.emoji} ${t.name} <span class="tk">[${i+1}]</span></div><div class="tc">💰${t.cost}</div><div class="ts">📏${t.range} ⚔️${t.dmg} ⏱${t.rate}/s</div>`;
     d.addEventListener('click',()=>pickType(id));
     cont.appendChild(d);
   });
@@ -359,49 +623,173 @@ function beginWave(n){
   document.getElementById('waveBox').style.display='block';
   updateWaveUI();
 }
-
 function beginBreak(){
   gamePhase='break'; breakRemain=BREAK_SEC;
   document.getElementById('breakBox').style.display='block';
-  const nextW=wave+1;
-  document.getElementById('bsub').textContent=`วิ ก่อน Wave ${nextW}`;
+  document.getElementById('btnRegen').style.display = wave===0 ? 'block' : 'none';
+  document.getElementById('bsub').textContent=`วิ ก่อน Wave ${wave+1}`;
   updateBreakUI();
 }
-
+function skipBreak(){
+  if(gamePhase==='break' && !gameOver) beginWave(wave+1);
+}
 function updateWaveUI(){
-  const cfg=WAVE_CFG[wave-1];
+  const cfg=getWaveCfg(wave);
   const pct=Math.min(100,waveElapsed/cfg.dur*100);
-  document.getElementById('wlabel').textContent=`Wave ${wave} / 10`;
-  document.getElementById('wstatus').textContent=gamePhase==='playing'?'กำลังบุก...':'รอ...';
+  document.getElementById('wlabel').textContent=`Wave ${wave} / ${waveTotalLabel()}`;
+  document.getElementById('wstatus').textContent='กำลังบุก...';
   document.getElementById('wpbar').style.width=pct+'%';
 }
-
 function updateBreakUI(){
   document.getElementById('bnum').textContent=Math.ceil(breakRemain);
-  document.getElementById('wlabel').textContent=`Wave ${wave} / 10 เสร็จแล้ว`;
+  document.getElementById('wlabel').textContent= wave===0 ? 'เตรียมพร้อมก่อนเริ่ม' : `Wave ${wave} / ${waveTotalLabel()} เสร็จแล้ว`;
   document.getElementById('wstatus').textContent='ช่วงเตรียมตัว';
   document.getElementById('wpbar').style.width='100%';
 }
 
-// ── FLOW (navigation) ────────────────────────────────
-function nextCell(col,row,dir){
-  const tries=dir.dy===1
-    ?[{dx:1,dy:0},{dx:0,dy:1},{dx:0,dy:-1},{dx:-1,dy:0}]
-    :dir.dy===-1
-    ?[{dx:1,dy:0},{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0}]
-    :[{dx:1,dy:0},{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0}];
-  for(const d of tries){
-    const nc=col+d.dx,nr=row+d.dy;
-    if(nc>=COLS) return{col:nc,row:nr,dir:d,exit:true};
-    if(nr<0||nr>=ROWS||nc<0) continue;
-    if(grid[nr][nc]===0) return{col:nc,row:nr,dir:d};
+// ── PATHFINDING (flow field BFS จากขอบขวา) ───────────
+function computeDist(){
+  const d=Array.from({length:ROWS},()=>new Int16Array(COLS).fill(-1));
+  const q=[]; let head=0;
+  for(let r=0;r<ROWS;r++){ if(grid[r][COLS-1]===0){ d[r][COLS-1]=0; q.push(r*COLS+(COLS-1)); } }
+  while(head<q.length){
+    const cur=q[head++], c=cur%COLS, r=(cur-c)/COLS, dd=d[r][c];
+    const nb=[[c-1,r],[c+1,r],[c,r-1],[c,r+1]];
+    for(const [nc,nr] of nb){
+      if(nc<0||nc>=COLS||nr<0||nr>=ROWS) continue;
+      if(grid[nr][nc]!==0||d[nr][nc]!==-1) continue;
+      d[nr][nc]=dd+1; q.push(nr*COLS+nc);
+    }
   }
-  return{col:col+1,row,dir:{dx:1,dy:0},exit:true};
+  return d;
+}
+function recomputePaths(){ dist=computeDist(); }
+// เช็คว่า dist ที่ให้มา ยังเปิดทางจาก spawn + ศัตรูเดินดินทุกตัวออกได้
+function pathValid(d){
+  if(d[SPAWN_ROW][0]===-1) return false;
+  if(enemies){
+    for(const e of enemies){
+      if(e.def.fly||e.dead||e.thru) continue;
+      const c=e.col,r=e.row;
+      if(c<0||c>=COLS||r<0||r>=ROWS) continue;
+      if(d[r][c]===-1) return false;
+    }
+  }
+  return true;
+}
+function wouldBlock(col,row){
+  if(grid[row][col]!==0) return false;
+  grid[row][col]=1;
+  const bad=!pathValid(computeDist());
+  grid[row][col]=0;
+  return bad;
+}
+// หา direction ไป cell เพื่อนบ้านที่ใกล้ทางออกสุด
+function nextStep(col,row){
+  let best=null,bd=Infinity;
+  const dirs=[[1,0],[0,1],[0,-1],[-1,0]];
+  for(const [dx,dy] of dirs){
+    const nc=col+dx,nr=row+dy;
+    if(nc>=COLS) return {dx:1,dy:0,exit:true};
+    if(nr<0||nr>=ROWS||nc<0) continue;
+    if(grid[nr][nc]!==0) continue;
+    const dd=dist[nr][nc];
+    if(dd<0) continue;
+    if(dd<bd){ bd=dd; best={dx,dy}; }
+  }
+  return best ? best : {dx:1,dy:0,exit:true};
 }
 
 function canPlace(col,row){
-  if(col<SPAWN_GUARD) return false; // ห้ามวางใกล้ spawn
+  if(col<SPAWN_GUARD) return false;
   return col>=0&&col<COLS&&row>=0&&row<ROWS&&grid[row][col]===0;
+}
+
+// รูปทรงแอ่งน้ำ: ผสมคลื่นหลายความถี่ → ขอบเบี้ยวธรรมชาติ ไม่สมมาตร (ไม่เป็นรูปดาว)
+function makePondShape(){
+  const amps=[0,0.16,0.13,0.09,0.06,0.04]; // amplitude ต่อ harmonic (k=1..5)
+  const harm=[];
+  for(let k=1;k<=5;k++) harm.push({k, amp:amps[k]*(0.55+Math.random()*0.95), phase:Math.random()*6.283});
+  return harm;
+}
+function pondRadius(p,ang){
+  let w=1;
+  for(const h of p.harm) w+=h.amp*Math.sin(h.k*ang+h.phase);
+  return Math.max(0.5,w);
+}
+// เซลล์ที่อยู่ในขอบเขตแอ่งน้ำ
+function cellsInPond(p){
+  const cells=[];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    if(c<SPAWN_GUARD+1 || c>=COLS-1) continue;          // เว้นข้าง spawn/ทางออก
+    if(r===SPAWN_ROW && c<=SPAWN_GUARD+2) continue;     // เว้นทางออกหน้า spawn
+    const dx=(c-p.cx)/p.rx, dy=(r-p.cy)/p.ry;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    if(d<=pondRadius(p,Math.atan2(dy,dx))) cells.push([c,r]);
+  }
+  return cells;
+}
+
+// ── MAP GENERATION (แอ่งน้ำใหญ่ + ต้นไม้ + ของตกแต่ง) ──
+function generateMap(){
+  const th=THEMES[mapTheme];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(grid[r][c]===2) grid[r][c]=0;
+  mapObstacles=[]; ponds=[];
+
+  // 1) แอ่งน้ำใหญ่ (พื้นที่หลายเซลล์ ทรงธรรมชาติ ขนาดสุ่ม)
+  const wantP=th.ponds[0]+Math.floor(Math.random()*(th.ponds[1]-th.ponds[0]+1));
+  let madeP=0,tP=0;
+  while(madeP<wantP && tP<60){
+    tP++;
+    const rx=3.0+Math.random()*2.5;   // รัศมีแนวนอน ~3-5.5 ช่อง (กว้าง ~6-11)
+    const ry=2.6+Math.random()*2.2;   // รัศมีแนวตั้ง ~2.6-4.8 ช่อง
+    const cx=Math.floor(SPAWN_GUARD+4+Math.random()*(COLS-SPAWN_GUARD-9));
+    const cy=Math.floor(3+Math.random()*(ROWS-6));
+    const p={cx,cy,rx,ry,harm:makePondShape()};
+    const cells=cellsInPond(p);
+    if(cells.length<4) continue;
+    if(cells.some(([c,r])=>grid[r][c]!==0)) continue;  // อย่าทับแอ่งอื่น
+    cells.forEach(([c,r])=>grid[r][c]=2);
+    if(pathValid(computeDist())){
+      // หญ้าที่ขึ้นรอบขอบแอ่ง (สุ่มตำแหน่งตอนสร้าง คงที่ไม่กระพริบ)
+      p.grass=[]; const ng=6+Math.floor(Math.random()*6);
+      for(let i=0;i<ng;i++) p.grass.push({ang:Math.random()*6.283, s:0.65+Math.random()*0.6});
+      ponds.push(p); madeP++;
+    } else cells.forEach(([c,r])=>grid[r][c]=0);        // ปิดทาง → ยกเลิกทั้งแอ่ง
+  }
+
+  // 2) ต้นไม้/หิน (กีดขวางจุดเดียว เลี่ยงเซลล์ที่เป็นน้ำ)
+  const want=10+Math.floor(Math.random()*10);
+  let placed=0,tries=0;
+  while(placed<want && tries<500){
+    tries++;
+    const c=SPAWN_GUARD+1+Math.floor(Math.random()*(COLS-SPAWN_GUARD-2));
+    const r=Math.floor(Math.random()*ROWS);
+    if(grid[r][c]!==0) continue;
+    if(r===SPAWN_ROW && c<=SPAWN_GUARD+2) continue;
+    if(c>=COLS-1) continue;
+    grid[r][c]=2;
+    if(pathValid(computeDist())){
+      mapObstacles.push({c,r,type:th.obs[Math.floor(Math.random()*th.obs.length)],seed:Math.random()});
+      placed++;
+    } else grid[r][c]=0;
+  }
+
+  // 3) ของตกแต่งพื้น (ไม่กีดขวาง) เก็บเป็นสัดส่วนเพื่อรองรับ resize
+  decor=[];
+  const dn=45+Math.floor(Math.random()*35);
+  for(let i=0;i<dn;i++){
+    decor.push({fx:Math.random(),fy:Math.random(),
+      type:th.dec[Math.floor(Math.random()*th.dec.length)],
+      s:0.7+Math.random()*0.7, seed:Math.random()});
+  }
+  recomputePaths();
+}
+// สุ่มแมพใหม่ระหว่างช่วงเตรียมตัว (เริ่มเกมใหม่ด้วยแมพใหม่)
+function regenMap(){
+  if(gameOver) return;
+  if(!(gamePhase==='break' && wave===0)){ toast('สุ่มแมพได้เฉพาะช่วงเตรียมตัวก่อนเริ่ม 🗺️'); return; }
+  initGame();
 }
 
 // ── GAME LOOP ─────────────────────────────────────────
@@ -409,18 +797,17 @@ function loop(ts){
   const rawDt=Math.min((ts-lastTs)/1000,0.05);
   lastTs=ts;
   const dt=rawDt*speed;
-  if(!paused) update(dt);
+  if(!paused&&!gameOver) update(dt);
   render();
   raf=requestAnimationFrame(loop);
 }
 
 function update(dt){
-  const cfg=WAVE_CFG[wave-1];
+  if(gameOver) return;
+  const cfg=getWaveCfg(wave);
 
   if(gamePhase==='playing'){
     waveElapsed+=dt;
-
-    // spawn ศัตรูปกติ
     if(waveElapsed<=cfg.dur){
       spawnTimer+=dt;
       if(spawnTimer>=cfg.iv){
@@ -428,16 +815,13 @@ function update(dt){
         const type=cfg.pool[Math.floor(Math.random()*cfg.pool.length)];
         spawnEnemy(type);
       }
-      // spawn boss
       if(cfg.bIv>0){
         bossTimer+=dt;
         if(bossTimer>=cfg.bIv){ bossTimer=0; spawnEnemy('boss'); }
       }
     }
-
-    // wave จบ (spawn หมดแล้ว + ศัตรูบนแมพหมด)
     if(waveElapsed>cfg.dur && enemies.length===0){
-      if(wave>=10){ endGame(true); return; }
+      if(isWin()){ endGame(true); return; }
       beginBreak();
     }
     updateWaveUI();
@@ -462,9 +846,9 @@ function update(dt){
 function spawnEnemy(typeId){
   const def=ENEMIES[typeId];
   const df=DIFF[difficulty];
-  const sc=WAVE_CFG[wave-1].sc;
+  const sc=getWaveCfg(wave).sc;
   const r=SPAWN_ROW;
-  enemies.push({
+  const e={
     def,typeId,
     x:CELL/2, y:r*CELL+CELL/2,
     hp:def.hp*sc*df.hp, maxHp:def.hp*sc*df.hp,
@@ -473,7 +857,14 @@ function spawnEnemy(typeId){
     col:0,row:r,
     dir:{dx:1,dy:0},
     wp:{x:CELL+CELL/2,y:r*CELL+CELL/2}
-  });
+  };
+  if(!def.fly){
+    const st=nextStep(0,r);
+    e.dir={dx:st.dx,dy:st.dy};
+    e.wp=st.exit?{x:CW+CELL,y:e.y}:{x:(0+st.dx)*CELL+CELL/2,y:(r+st.dy)*CELL+CELL/2};
+  }
+  enemies.push(e);
+  if(typeId==='boss'){ sfx('boss'); toast('⚠️ ราชาแมลงปรากฏตัว'); }
 }
 
 // ── ENEMIES ───────────────────────────────────────────
@@ -481,42 +872,63 @@ function updateEnemies(dt){
   for(const e of enemies){
     if(e.dead||e.thru) continue;
     e.flash=Math.max(0,e.flash-dt);
+
+    if(e.def.fly){ // บินตรงข้ามป้อม
+      e.x+=e.spd*dt;
+      if(e.x>=CW+CELL*0.5){ e.thru=true; lives--; updateHUD(); addParts(e.x,e.y,'#ff3030',8); sfx('hurt'); }
+      continue;
+    }
+
     const dx=e.wp.x-e.x, dy=e.wp.y-e.y;
-    const dist=Math.sqrt(dx*dx+dy*dy);
+    const d=Math.sqrt(dx*dx+dy*dy);
     const mv=e.spd*dt;
-    if(dist<=mv+0.5){
+    if(d<=mv+0.5){
       e.x=e.wp.x; e.y=e.wp.y;
       e.col+=e.dir.dx; e.row+=e.dir.dy;
       if(e.col>=COLS){
-        e.thru=true; lives--; updateHUD(); addParts(e.x,e.y,'#ff3030',8);
+        e.thru=true; lives--; updateHUD(); addParts(e.x,e.y,'#ff3030',8); sfx('hurt');
       } else {
-        const nxt=nextCell(e.col,e.row,e.dir);
-        e.dir=nxt.dir;
-        e.wp=nxt.exit?{x:CW+CELL,y:e.y}:{x:nxt.col*CELL+CELL/2,y:nxt.row*CELL+CELL/2};
+        const st=nextStep(e.col,e.row);
+        e.dir={dx:st.dx,dy:st.dy};
+        e.wp=st.exit?{x:CW+CELL,y:e.y}:{x:(e.col+st.dx)*CELL+CELL/2,y:(e.row+st.dy)*CELL+CELL/2};
       }
     } else {
-      e.x+=(dx/dist)*mv; e.y+=(dy/dist)*mv;
+      e.x+=(dx/d)*mv; e.y+=(dy/d)*mv;
     }
   }
 }
 
 // ── TOWERS ────────────────────────────────────────────
+function pickTarget(tw){
+  let tgt=null,best=-Infinity;
+  const rng2=(tw.def.range*CELL)**2;
+  for(const e of enemies){
+    if(e.dead||e.thru) continue;
+    const dx=e.x-tw.x,dy=e.y-tw.y;
+    if(dx*dx+dy*dy>rng2) continue;
+    let v;
+    switch(tw.target){
+      case 'last':   v=-e.x;  break;
+      case 'strong': v=e.hp;  break;
+      case 'weak':   v=-e.hp; break;
+      default:       v=e.x;   break; // first
+    }
+    if(v>best){ best=v; tgt=e; }
+  }
+  return tgt;
+}
 function updateTowers(dt){
   for(const tw of towers){
     tw.cd=Math.max(0,(tw.cd||0)-dt);
     if(tw.cd>0) continue;
-    let tgt=null,bestX=-Infinity;
-    const rng2=(tw.def.range*CELL)**2;
-    for(const e of enemies){
-      if(e.dead||e.thru) continue;
-      const dx=e.x-tw.x,dy=e.y-tw.y;
-      if(dx*dx+dy*dy<=rng2&&e.x>bestX){bestX=e.x;tgt=e;}
-    }
+    const tgt=pickTarget(tw);
     if(!tgt) continue;
     tw.cd=1/tw.def.rate;
     tw.angle=Math.atan2(tgt.y-tw.y,tgt.x-tw.x);
     projs.push({x:tw.x,y:tw.y,tgt,spd:tw.def.pspd,dmg:tw.def.dmg,aoe:tw.def.aoe,col:tw.def.glow,tw,
       sz:tw.def.id==='laser'?4:tw.def.id==='machinegun'?2:tw.def.id==='cannon'?7:3.5});
+    const now=performance.now();
+    if(now-lastShootSfx>55){ lastShootSfx=now; sfx(tw.def.aoe>0?'cannon':'shoot'); }
   }
 }
 
@@ -525,9 +937,9 @@ function updateProjs(dt){
   for(const p of projs){
     if(p.tgt.dead||p.tgt.thru){done.add(p);continue;}
     const dx=p.tgt.x-p.x,dy=p.tgt.y-p.y;
-    const dist=Math.sqrt(dx*dx+dy*dy);
+    const dist0=Math.sqrt(dx*dx+dy*dy);
     const mv=p.spd*dt;
-    if(dist<=mv+1){
+    if(dist0<=mv+1){
       if(p.aoe>0){
         const ar=p.aoe*CELL,ar2=ar*ar;
         for(const e of enemies){
@@ -541,7 +953,7 @@ function updateProjs(dt){
       }
       done.add(p);
     } else {
-      p.x+=(dx/dist)*mv; p.y+=(dy/dist)*mv;
+      p.x+=(dx/dist0)*mv; p.y+=(dy/dist0)*mv;
     }
   }
   projs=projs.filter(p=>!done.has(p));
@@ -556,6 +968,7 @@ function hitEnemy(e,dmg,tw){
     gold+=Math.floor(e.def.reward*df.reward);
     kills++; if(tw) tw.kills++;
     addParts(e.x,e.y,e.def.col,10);
+    sfx('die');
     updateHUD();
   }
 }
@@ -574,40 +987,62 @@ function updateParts(dt){
 // ── PLACEMENT ─────────────────────────────────────────
 function doPlace(col,row,typeId){
   const def=TOWERS[typeId];
-  if(!def||gold<def.cost){toast('ไม่มีเงินพอ! 💸');return;}
+  if(!def||gold<def.cost){toast('ไม่มีเงินพอ 💸');return;}
   if(!canPlace(col,row)){
-    if(col<SPAWN_GUARD) toast('ห้ามวางใกล้จุด IN เกิน 2 ช่อง! 🚫');
+    if(col<SPAWN_GUARD) toast('ห้ามวางใกล้จุด IN เกิน 2 ช่อง 🚫');
+    else if(col>=0&&col<COLS&&row>=0&&row<ROWS&&grid[row][col]===2) toast('วางบนสิ่งกีดขวางไม่ได้ 🌳');
+    else if(col>=0&&col<COLS&&row>=0&&row<ROWS&&grid[row][col]===3) toast('วางบนแอ่งน้ำไม่ได้ 💧');
     return;
   }
+  // ลองวาง แล้วเช็คว่ายังเหลือทางให้ศัตรูเดิน
   grid[row][col]=1;
+  const d=computeDist();
+  if(!pathValid(d)){
+    grid[row][col]=0;
+    toast('วางตรงนี้จะปิดทางศัตรูทั้งหมด 🚫');
+    return;
+  }
+  dist=d;
+  // ศัตรูที่ยืนบนช่องนี้ ให้หาทางใหม่
   for(const e of enemies){
+    if(e.def.fly) continue;
     if(e.col===col&&e.row===row){
-      const nxt=nextCell(e.col,e.row,e.dir);
-      e.dir=nxt.dir;
-      e.wp=nxt.exit?{x:CW+CELL,y:e.y}:{x:nxt.col*CELL+CELL/2,y:nxt.row*CELL+CELL/2};
+      const st=nextStep(e.col,e.row);
+      e.dir={dx:st.dx,dy:st.dy};
+      e.wp=st.exit?{x:CW+CELL,y:e.y}:{x:(e.col+st.dx)*CELL+CELL/2,y:(e.row+st.dy)*CELL+CELL/2};
     }
   }
   gold-=def.cost;
-  towers.push({col,row,x:col*CELL+CELL/2,y:row*CELL+CELL/2,def,cd:0,totalCost:def.cost,kills:0,angle:0});
+  towers.push({col,row,x:col*CELL+CELL/2,y:row*CELL+CELL/2,def,cd:0,totalCost:def.cost,kills:0,angle:0,target:'first'});
+  sfx('place');
   updateHUD();
 }
 
 function showTwInfo(tw){
   const nxt=tw.def.upgTo?TOWERS[tw.def.upgTo]:null;
-  document.getElementById('info').innerHTML=`<b>${tw.def.emoji} ${tw.def.name}</b><br>⚔️${tw.def.dmg} 📏${tw.def.range} ⏱${tw.def.rate}/s<br>💀 ฆ่า: ${tw.kills} ตัว${nxt?`<br>⬆️→${nxt.emoji}${nxt.name}(${nxt.cost}g)`:'<br>🏆 Max Level!'}`;
+  document.getElementById('info').innerHTML=`<b>${tw.def.emoji} ${tw.def.name}</b><br>⚔️${tw.def.dmg} 📏${tw.def.range} ⏱${tw.def.rate}/s<br>💀 ฆ่า: ${tw.kills} ตัว${nxt?`<br>⬆️→${nxt.emoji}${nxt.name} (${nxt.cost}g)`:'<br>🏆 Max Level'}`;
   document.getElementById('acts').style.display='flex';
   const b=document.getElementById('btnUpg');
-  b.textContent=nxt?`⬆️ Upgrade→${nxt.name}(${nxt.cost}g)`:'🏆 Max Level';
+  b.textContent=nxt?`⬆️ Upgrade→${nxt.name} (${nxt.cost}g)`:'🏆 Max Level';
   b.disabled=!nxt;
+  document.getElementById('btnTarget').textContent=`🎯 เป้า: ${TARGET_NAME[tw.target]}`;
   document.getElementById('btnSell').textContent=`🗑️ ขาย (${Math.floor(tw.totalCost*0.5)}g)`;
+}
+
+function cycleTarget(){
+  if(!selTower) return;
+  const i=TARGET_MODES.indexOf(selTower.target);
+  selTower.target=TARGET_MODES[(i+1)%TARGET_MODES.length];
+  showTwInfo(selTower);
 }
 
 function doUpgrade(){
   if(!selTower) return;
   const nxt=TOWERS[selTower.def.upgTo];
-  if(!nxt||gold<nxt.cost){toast('ไม่มีเงินพอ! 💸');return;}
+  if(!nxt||gold<nxt.cost){toast('ไม่มีเงินพอ 💸');return;}
   gold-=nxt.cost; selTower.totalCost+=nxt.cost;
   selTower.def=nxt; selTower.cd=0;
+  sfx('upg');
   showTwInfo(selTower); updateHUD();
 }
 
@@ -617,6 +1052,7 @@ function doSell(){
   grid[selTower.row][selTower.col]=0;
   towers=towers.filter(t=>t!==selTower);
   selTower=null;
+  recomputePaths(); // เปิดทางใหม่
   document.getElementById('acts').style.display='none';
   document.getElementById('info').innerHTML='← เลือกป้อมเพื่อวาง<br>คลิกป้อมที่วางแล้วเพื่อดูข้อมูล';
   updateHUD();
@@ -640,8 +1076,16 @@ function onClick(e){
     else{selTower=null;document.getElementById('acts').style.display='none';document.getElementById('info').innerHTML='← เลือกป้อมเพื่อวาง<br>คลิกป้อมที่วางแล้วเพื่อดูข้อมูล';}
   }
 }
+function onKey(e){
+  if(document.getElementById('gameUI').style.display==='none') return;
+  if(e.code==='Space'){ e.preventDefault(); togglePause(); return; }
+  if(e.key==='Escape'){ deselect(); return; }
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=6){ pickType(TORDER[n-1]); }
+}
 
 function togglePause(){
+  if(gameOver) return;
   paused=!paused;
   const btn=document.getElementById('btnPause');
   btn.textContent=paused?'▶️ Resume':'⏸ Pause';
@@ -651,6 +1095,11 @@ function togglePause(){
 function toggleSpd(){
   speed=speed===1?2:speed===2?3:1;
   document.getElementById('btnSpd').textContent=`⚡ Speed x${speed}`;
+}
+function toggleMute(){
+  muted=!muted;
+  if(!muted) initAudio();
+  document.getElementById('btnMute').textContent=muted?'🔇 เสียง: ปิด':'🔊 เสียง: เปิด';
 }
 
 // ── HUD ───────────────────────────────────────────────
@@ -670,37 +1119,193 @@ function toast(msg){
 }
 
 function endGame(win){
+  if(gameOver) return;
+  gameOver=true;
+  sfx(win?'win':'lose');
+  const best=loadBest();
+  if(wave>best.wave || (wave===best.wave && kills>best.kills)){ best.wave=wave; best.kills=kills; saveBest(best); }
   const ov=document.getElementById('endOverlay');
-  document.getElementById('endTitle').textContent=win?'🏆 ชนะ!':'💀 แพ้!';
+  document.getElementById('endTitle').textContent=win?'🏆 ชนะ':'💀 แพ้';
+  const headline = win ? `ปกป้องดินแดนสำเร็จทั้ง ${BASE_WAVES} Wave`
+    : (gameMode==='endless' ? `ยืนหยัดได้ถึง Wave ${wave}` : 'แมลงปีศาจบุกทะลวงแล้ว');
   document.getElementById('endSub').innerHTML=
-    `${win?'ปกป้องดินแดนสำเร็จทั้ง 10 Wave!':'แมลงปีศาจบุกทะลวงแล้ว!'}<br>
-    💀 ฆ่า: ${kills} ตัว | Wave: ${wave}/10 | 💰 Gold: ${gold}`;
+    `${headline}<br>
+    💀 ฆ่า: ${kills} ตัว | Wave: ${wave}/${waveTotalLabel()} | 💰 Gold: ${gold}<br>
+    🏅 สถิติสูงสุด: Wave ${best.wave} | ฆ่า ${best.kills} ตัว`;
   ov.style.display='flex';
+}
+
+// ── MAP STORAGE (เก็บแมพที่สร้างเองใน localStorage) ──
+function loadMaps(){ try{ return JSON.parse(localStorage.getItem('demonSwarmMaps'))||[]; }catch(e){ return []; } }
+function saveMaps(){ try{ localStorage.setItem('demonSwarmMaps',JSON.stringify(customMaps)); }catch(e){} }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function getWaterCells(){ const w=[]; for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(grid[r][c]===3)w.push([c,r]); return w; }
+
+// ── MAP EDITOR ────────────────────────────────────────
+function openEditor(){
+  ['menuScreen','settingsScreen','helpScreen','mapsScreen'].forEach(s=>document.getElementById(s).style.display='none');
+  document.getElementById('gameUI').style.display='none';
+  document.getElementById('editorScreen').style.display='flex';
+  editMode=true;
+  canvas=document.getElementById('edc'); ctx=canvas.getContext('2d');
+  grid=Array.from({length:ROWS},()=>new Uint8Array(COLS));
+  mapObstacles=[]; ponds=[]; decor=[]; towers=[]; enemies=[]; projs=[]; parts=[];
+  setEdTool('tree'); setEdTheme(mapTheme||'meadow');
+  document.getElementById('edName').value='';
+  resize();
+  if(raf) cancelAnimationFrame(raf);
+  lastTs=performance.now();
+  raf=requestAnimationFrame(editLoop);
+}
+function editLoop(){ if(!editMode) return; renderEditor(); raf=requestAnimationFrame(editLoop); }
+
+function setEdTool(t){ editTool=t; document.querySelectorAll('#edTools .edtool').forEach(b=>b.classList.toggle('sel',b.dataset.tool===t)); }
+function setEdTheme(t){ mapTheme=t; document.querySelectorAll('#edThemes .edth').forEach(b=>b.classList.toggle('sel',b.dataset.th===t)); }
+
+function edPaintCell(col,row){
+  if(col<0||col>=COLS||row<0||row>=ROWS) return;
+  if(col<SPAWN_GUARD || col>=COLS-1) return;                 // เว้นโซน spawn / ทางออก
+  if(row===SPAWN_ROW && col<=SPAWN_GUARD+2) return;          // เว้นทางออกหน้า spawn
+  const t=editTool;
+  if(t==='erase'){
+    if(grid[row][col]===2||grid[row][col]===3) grid[row][col]=0;
+    mapObstacles=mapObstacles.filter(o=>!(o.c===col&&o.r===row));
+    decor=decor.filter(d=>!(Math.floor(d.fx*COLS)===col && Math.floor(d.fy*ROWS)===row));
+    return;
+  }
+  if(t==='tree'||t==='rock'){
+    if(grid[row][col]!==0) return;
+    grid[row][col]=2;
+    const types = t==='tree' ? THEMES[mapTheme].obs : ['rock'];
+    mapObstacles.push({c:col,r:row,type:types[Math.floor(Math.random()*types.length)],seed:Math.random()});
+  } else if(t==='water'){
+    if(grid[row][col]!==0) return;
+    grid[row][col]=3;
+  } else if(t==='grass'||t==='flower'){
+    if(grid[row][col]!==0) return;
+    if(decor.some(d=>Math.floor(d.fx*COLS)===col && Math.floor(d.fy*ROWS)===row)) return;
+    decor.push({fx:(col+0.5)/COLS, fy:(row+0.5)/ROWS, type:t, s:0.7+Math.random()*0.5, seed:Math.random()});
+  }
+}
+function edCellAt(e){ const r=canvas.getBoundingClientRect(); return [Math.floor((e.clientX-r.left)/CELL), Math.floor((e.clientY-r.top)/CELL)]; }
+function edClear(){ grid=Array.from({length:ROWS},()=>new Uint8Array(COLS)); mapObstacles=[]; decor=[]; }
+function edValid(){ enemies=[]; return pathValid(computeDist()); }
+
+function edSave(){
+  const name=document.getElementById('edName').value.trim();
+  if(!name){ toast('ใส่ชื่อแมพก่อนบันทึก ✏️'); return; }
+  if(!edValid()){ toast('แมพปิดทางศัตรู เปิดทางก่อนบันทึก 🚫'); return; }
+  const map={ name, theme:mapTheme,
+    obstacles:mapObstacles.map(o=>({c:o.c,r:o.r,type:o.type,seed:o.seed})),
+    water:getWaterCells(),
+    decor:decor.map(d=>({fx:d.fx,fy:d.fy,type:d.type,s:d.s,seed:d.seed})) };
+  const idx=customMaps.findIndex(m=>m.name===name);
+  if(idx>=0) customMaps[idx]=map; else customMaps.push(map);
+  saveMaps();
+  toast('บันทึกแมพ "'+name+'" แล้ว ✅');
+}
+function edPlay(){
+  if(!edValid()){ toast('แมพปิดทางศัตรู เปิดทางก่อนเล่น 🚫'); return; }
+  document.getElementById('editorScreen').style.display='none';
+  startCustomGame({ theme:mapTheme, obstacles:mapObstacles.map(o=>({...o})), water:getWaterCells(), decor:decor.map(d=>({...d})) });
+}
+
+function startCustomGame(m){
+  activeCustomMap=m;
+  document.getElementById('gameUI').style.display='flex';
+  document.getElementById('endOverlay').style.display='none';
+  initAudio(); initGame();
+}
+function loadCustomIntoGame(m){
+  mapTheme=m.theme;
+  mapObstacles=(m.obstacles||[]).map(o=>({...o}));
+  mapObstacles.forEach(o=>{ if(o.r>=0&&o.r<ROWS&&o.c>=0&&o.c<COLS) grid[o.r][o.c]=2; });
+  (m.water||[]).forEach(([c,r])=>{ if(r>=0&&r<ROWS&&c>=0&&c<COLS) grid[r][c]=3; });
+  decor=(m.decor||[]).map(d=>({...d}));
+  ponds=[];
+  recomputePaths();
+}
+
+// ── MY MAPS ───────────────────────────────────────────
+function showMaps(){ showScreen('mapsScreen'); }
+function renderMapList(){
+  const cont=document.getElementById('mapList'); cont.innerHTML='';
+  if(!customMaps.length){ cont.innerHTML='<div class="map-empty">ยังไม่มีแมพที่บันทึกไว้<br>กด "สร้างแมพ" เพื่อสร้างแมพแรกของพี่กัน</div>'; return; }
+  customMaps.forEach((m,i)=>{
+    const row=document.createElement('div'); row.className='map-row';
+    const info=document.createElement('div');
+    info.innerHTML=`<div class="mname">${THEMES[m.theme]?.emoji||'🗺️'} ${escapeHtml(m.name)}</div><div class="msub">ต้นไม้/หิน ${(m.obstacles||[]).length} · ช่องน้ำ ${(m.water||[]).length}</div>`;
+    const btns=document.createElement('div'); btns.className='mbtns';
+    const play=document.createElement('button'); play.className='map-mini'; play.textContent='▶️ เล่น';
+    play.addEventListener('click',()=>playCustomMap(i));
+    const del=document.createElement('button'); del.className='map-mini del'; del.textContent='🗑️ ลบ';
+    del.addEventListener('click',()=>{ customMaps.splice(i,1); saveMaps(); renderMapList(); });
+    btns.appendChild(play); btns.appendChild(del);
+    row.appendChild(info); row.appendChild(btns); cont.appendChild(row);
+  });
+}
+function playCustomMap(i){
+  const m=customMaps[i]; if(!m) return;
+  document.getElementById('mapsScreen').style.display='none';
+  startCustomGame({ theme:m.theme, obstacles:(m.obstacles||[]).map(o=>({...o})), water:(m.water||[]).map(w=>w.slice()), decor:(m.decor||[]).map(d=>({...d})) });
+}
+
+// ── EDITOR RENDER ─────────────────────────────────────
+function renderEditor(){
+  ctx.clearRect(0,0,CW,CH);
+  const th=THEMES[mapTheme];
+  const g=ctx.createLinearGradient(0,0,0,CH); g.addColorStop(0,th.top); g.addColorStop(1,th.bot);
+  ctx.fillStyle=g; ctx.fillRect(0,0,CW,CH);
+  for(let i=0;i<220;i++){ const tx=(i*173+31)%CW,ty=(i*109+47)%CH;
+    ctx.fillStyle=i%3===0?'rgba(255,255,255,0.10)':th.tex+'0.18)'; ctx.fillRect(tx,ty,(i%4)+1,(i%3)+1); }
+  decor.forEach(drawDecor);
+  drawWaterCells();
+  mapObstacles.forEach(drawObstacle);
+  // เส้นกริด
+  ctx.strokeStyle='rgba(20,60,10,0.08)'; ctx.lineWidth=1;
+  for(let c=0;c<=COLS;c++){ ctx.beginPath(); ctx.moveTo(c*CELL,0); ctx.lineTo(c*CELL,CH); ctx.stroke(); }
+  for(let r=0;r<=ROWS;r++){ ctx.beginPath(); ctx.moveTo(0,r*CELL); ctx.lineTo(CW,r*CELL); ctx.stroke(); }
+  // โซนห้ามวาง + IN + OUT
+  ctx.fillStyle='rgba(200,50,50,0.1)'; ctx.fillRect(0,0,SPAWN_GUARD*CELL,CH);
+  const sy=SPAWN_ROW*CELL;
+  ctx.fillStyle='rgba(255,60,60,0.32)'; ctx.fillRect(0,sy,CELL,CELL);
+  ctx.fillStyle='#c83030'; ctx.font=`bold ${Math.max(9,CELL*0.5)}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('IN',CELL/2,sy+CELL/2);
+  ctx.fillStyle='rgba(60,160,255,0.16)'; ctx.fillRect(CW-CELL,0,CELL,CH);
+  // เคอร์เซอร์
+  if(edMouseCol>=0&&edMouseRow>=0&&edMouseCol<COLS&&edMouseRow<ROWS){
+    const ok = edMouseCol>=SPAWN_GUARD && edMouseCol<COLS-1 && !(edMouseRow===SPAWN_ROW&&edMouseCol<=SPAWN_GUARD+2);
+    ctx.strokeStyle=ok?'rgba(255,255,255,0.9)':'rgba(255,60,60,0.9)'; ctx.lineWidth=2;
+    ctx.strokeRect(edMouseCol*CELL,edMouseRow*CELL,CELL,CELL);
+  }
 }
 
 // ── RENDER ────────────────────────────────────────────
 function render(){
   ctx.clearRect(0,0,CW,CH);
 
-  // ทุ่งหญ้า BG
+  // ทุ่งหญ้า BG ตามธีม (โทนสว่าง)
+  const th=THEMES[mapTheme];
   const g=ctx.createLinearGradient(0,0,0,CH);
-  g.addColorStop(0,'#56b824'); g.addColorStop(0.45,'#4aa81e'); g.addColorStop(0.8,'#42981a'); g.addColorStop(1,'#3a8816');
+  g.addColorStop(0,th.top); g.addColorStop(1,th.bot);
   ctx.fillStyle=g; ctx.fillRect(0,0,CW,CH);
 
-  // grass texture
-  for(let i=0;i<200;i++){
+  // grass texture จุดเล็กๆ
+  for(let i=0;i<220;i++){
     const tx=(i*173+31)%CW,ty=(i*109+47)%CH;
-    ctx.fillStyle=i%3===0?'rgba(100,200,40,0.2)':'rgba(30,80,10,0.16)';
+    ctx.fillStyle=i%3===0?'rgba(255,255,255,0.10)':th.tex+'0.18)';
     ctx.fillRect(tx,ty,(i%4)+1,(i%3)+1);
   }
-  // ดอกไม้
-  const fl=['rgba(255,220,50,0.55)','rgba(255,255,255,0.4)','rgba(255,160,80,0.45)'];
-  for(let i=0;i<35;i++){
-    ctx.fillStyle=fl[i%3];
-    ctx.beginPath(); ctx.arc((i*317+80)%CW,(i*191+60)%CH,1.5,0,Math.PI*2); ctx.fill();
-  }
 
-  // โซนห้ามวาง (2 ช่องแรก) — แสดงเฉพาะตอนกำลังเลือกป้อม
+  // ของตกแต่งพื้น (หญ้า/ดอก/พุ่ม) ไม่กีดขวาง
+  decor.forEach(drawDecor);
+  // แอ่งน้ำ (พื้นที่ใหญ่ วาดก่อนต้นไม้)
+  ponds.forEach(drawPond);
+  drawWaterCells();
+  // สิ่งกีดขวาง (ต้นไม้/หิน)
+  mapObstacles.forEach(drawObstacle);
+
+  // โซนห้ามวาง (2 ช่องแรก) — เฉพาะตอนกำลังเลือกป้อม
   if(selType){
     ctx.fillStyle='rgba(200,50,50,0.12)';
     ctx.fillRect(0,0,SPAWN_GUARD*CELL,CH);
@@ -720,6 +1325,10 @@ function render(){
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillStyle='rgba(255,110,110,0.95)';
   ctx.fillText('IN',sx+CELL/2,sy+CELL/2);
+
+  // ทางออก OUT (ขอบขวา)
+  ctx.fillStyle='rgba(60,160,255,0.16)';
+  ctx.fillRect(CW-CELL,0,CELL,CH);
 
   towers.forEach(drawTower);
   if(selTower) drawRing(selTower.x,selTower.y,selTower.def.range*CELL,selTower.def.glow);
@@ -751,12 +1360,14 @@ function renderPreview(){
   const def=TOWERS[selType];
   const col=mouseCol,row=mouseRow;
   const cx=col*CELL+CELL/2,cy=row*CELL+CELL/2;
-  const empty=col>=SPAWN_GUARD&&grid[row]?.[col]===0;
-  ctx.fillStyle=empty?'rgba(80,220,80,0.18)':'rgba(220,60,60,0.18)';
+  const free=col>=SPAWN_GUARD&&grid[row]?.[col]===0;
+  const blocks=free&&wouldBlock(col,row);
+  const ok=free&&!blocks;
+  ctx.fillStyle=ok?'rgba(80,220,80,0.18)':'rgba(220,60,60,0.18)';
   ctx.fillRect(col*CELL,row*CELL,CELL,CELL);
-  ctx.strokeStyle=empty?'rgba(80,255,80,0.6)':'rgba(255,60,60,0.6)';
+  ctx.strokeStyle=ok?'rgba(80,255,80,0.6)':'rgba(255,60,60,0.6)';
   ctx.lineWidth=1.5; ctx.strokeRect(col*CELL,row*CELL,CELL,CELL);
-  if(!empty) return;
+  if(!ok) return;
   drawRing(cx,cy,def.range*CELL,def.glow);
   ctx.globalAlpha=0.42; drawTowerAt(cx,cy,def,CELL*0.44); ctx.globalAlpha=1;
 }
@@ -776,8 +1387,10 @@ function drawTower(tw){
   ctx.restore();
 }
 function drawTowerAt(cx,cy,def,r){
+  ctx.beginPath();
   ctx.fillStyle='#5a4a2a';
   ctx.roundRect(cx-r,cy-r,r*2,r*2,r*0.28); ctx.fill();
+  ctx.beginPath();
   ctx.fillStyle='#7a6a3a';
   ctx.roundRect(cx-r+1,cy-r+1,r*2-2,r*2-2,r*0.22); ctx.fill();
   ctx.strokeStyle=def.glow; ctx.lineWidth=1.5;
@@ -785,8 +1398,155 @@ function drawTowerAt(cx,cy,def,r){
   ctx.font=`${r*1.55}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(def.emoji,cx,cy+1);
 }
+function drawDecor(d){
+  const x=d.fx*CW, y=d.fy*CH, s=CELL*d.s;
+  if(d.type==='grass'){
+    ctx.strokeStyle='rgba(45,135,22,0.6)'; ctx.lineWidth=Math.max(1,s*0.07); ctx.lineCap='round';
+    for(let i=-2;i<=2;i++){
+      const bx=x+i*s*0.11;
+      ctx.beginPath(); ctx.moveTo(bx,y);
+      ctx.lineTo(bx+i*s*0.07, y-s*(0.5+(2-Math.abs(i))*0.07));
+      ctx.stroke();
+    }
+  } else if(d.type==='flower'){
+    ctx.strokeStyle='rgba(40,130,20,0.45)'; ctx.lineWidth=Math.max(1,s*0.07);
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-s*0.5); ctx.stroke();
+    const cols=['#ff5d8f','#ffd23f','#ffffff','#b06cff','#ff8a3d'];
+    ctx.fillStyle=cols[Math.floor(d.seed*cols.length)];
+    for(let k=0;k<5;k++){ const a=k/5*Math.PI*2;
+      ctx.beginPath(); ctx.arc(x+Math.cos(a)*s*0.13, y-s*0.5+Math.sin(a)*s*0.13, s*0.1,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle='#ffe66d'; ctx.beginPath(); ctx.arc(x,y-s*0.5,s*0.09,0,Math.PI*2); ctx.fill();
+  } else if(d.type==='bush'){
+    ctx.fillStyle='rgba(45,140,30,0.7)';
+    for(let k=0;k<3;k++){ ctx.beginPath(); ctx.arc(x+(k-1)*s*0.25, y, s*0.28,0,Math.PI*2); ctx.fill(); }
+  }
+}
+
+// แอ่งน้ำใหญ่สมจริง (ทรงธรรมชาติไร้รูปแบบ + ทรายชายหาด + หญ้าขอบ + ไล่เฉด ไม่มีเงา)
+function drawPond(p){
+  const cx=p.cx*CELL+CELL/2, cy=p.cy*CELL+CELL/2;
+  const RX=p.rx*CELL, RY=p.ry*CELL, steps=72;
+  function blob(scale){
+    ctx.beginPath();
+    for(let i=0;i<=steps;i++){
+      const a=i/steps*Math.PI*2;
+      const w=pondRadius(p,a)*scale;
+      const x=cx + Math.cos(a)*RX*w;
+      const y=cy + Math.sin(a)*RY*w;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+  }
+  blob(1.14); ctx.fillStyle='#9c8c50'; ctx.fill();           // ดิน/โคลนรอบนอก
+  blob(1.06); ctx.fillStyle='#e6d6a2'; ctx.fill();           // ทรายชายหาด
+  blob(1.0);                                                  // น้ำ ไล่เฉดลึก-ตื้น
+  const grad=ctx.createRadialGradient(cx, cy-RY*0.25, RX*0.06, cx, cy, RX);
+  grad.addColorStop(0,'#5cb6e8'); grad.addColorStop(0.55,'#2f8fce'); grad.addColorStop(1,'#1a679e');
+  ctx.fillStyle=grad; ctx.fill();
+  ctx.save(); blob(1.0); ctx.clip();                          // จำกัดประกายไม่ให้ล้นขอบ
+  ctx.fillStyle='rgba(160,224,248,0.34)';
+  ctx.beginPath(); ctx.ellipse(cx, cy-RY*0.28, RX*0.52, RY*0.38,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=Math.max(1,CELL*0.06); ctx.lineCap='round';
+  for(let k=0;k<3;k++){
+    const yy=cy-RY*0.3+k*RY*0.32, xw=RX*(0.4-k*0.09);
+    ctx.beginPath(); ctx.ellipse(cx-RX*0.08, yy, xw, RY*0.05, 0, 0.25, Math.PI-0.25); ctx.stroke();
+  }
+  ctx.restore();
+  // หญ้าขึ้นที่ขอบแอ่ง
+  if(p.grass){
+    ctx.strokeStyle='rgba(45,120,25,0.72)'; ctx.lineWidth=Math.max(1,CELL*0.06); ctx.lineCap='round';
+    p.grass.forEach(g=>{
+      const w=pondRadius(p,g.ang)*1.05;
+      const ex=cx+Math.cos(g.ang)*RX*w, ey=cy+Math.sin(g.ang)*RY*w, bs=CELL*g.s;
+      for(let i=-1;i<=1;i++){
+        ctx.beginPath(); ctx.moveTo(ex+i*bs*0.16, ey);
+        ctx.lineTo(ex+i*bs*0.2, ey-bs*0.6); ctx.stroke();
+      }
+    });
+  }
+}
+
+// ── น้ำแบบวาดเป็นช่อง (grid===3) สำหรับแมพที่สร้างเอง ──
+function isWaterCell(c,r){ return r>=0&&r<ROWS&&c>=0&&c<COLS&&grid[r][c]===3; }
+function hasWaterCells(){
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(grid[r][c]===3) return true;
+  return false;
+}
+function drawWaterCells(){
+  const cells=[];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(grid[r][c]===3) cells.push([c,r]);
+  if(!cells.length) return;
+  const R=CELL;
+  const inner4=(c,r)=>isWaterCell(c-1,r)&&isWaterCell(c+1,r)&&isWaterCell(c,r-1)&&isWaterCell(c,r+1);
+  const circles=(rad,filter)=>{
+    for(const [c,r] of cells){
+      if(filter && !filter(c,r)) continue;
+      const x=c*R+R/2,y=r*R+R/2;
+      ctx.beginPath(); ctx.arc(x,y,R*rad,0,Math.PI*2); ctx.fill();
+    }
+  };
+  ctx.fillStyle='#cebd82'; circles(0.92);          // ทรายชายหาด
+  ctx.fillStyle='#8fb046'; circles(0.74);          // หญ้าขอบน้ำ
+  ctx.fillStyle='#2b84bb'; circles(0.66);          // น้ำ (ฐานเต็ม)
+  ctx.fillStyle='#3f9bd0'; circles(0.66,inner4);   // น้ำด้านในอ่อนกว่า (overlap เต็ม → เนียน)
+  // ประกายแสงรวม (clip เฉพาะพื้นที่น้ำ)
+  let minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
+  for(const [c,r] of cells){ const x=c*R+R/2,y=r*R+R/2; if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y; }
+  ctx.save();
+  ctx.beginPath();
+  for(const [c,r] of cells){ const x=c*R+R/2,y=r*R+R/2; ctx.moveTo(x+R*0.66,y); ctx.arc(x,y,R*0.66,0,Math.PI*2); }
+  ctx.clip();
+  const ccx=(minx+maxx)/2, ccy=(miny+maxy)/2, bw=(maxx-minx)+R, bh=(maxy-miny)+R;
+  ctx.fillStyle='rgba(155,218,246,0.3)';
+  ctx.beginPath(); ctx.ellipse(ccx, ccy-bh*0.12, bw*0.3, bh*0.22,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=Math.max(1,R*0.06); ctx.lineCap='round';
+  for(let k=0;k<3;k++){ const yy=ccy-bh*0.1+k*bh*0.14, xw=bw*(0.2-k*0.04);
+    ctx.beginPath(); ctx.ellipse(ccx-bw*0.05, yy, xw, R*0.18, 0, 0.25, Math.PI-0.25); ctx.stroke(); }
+  ctx.restore();
+}
+
+function drawObstacle(o){
+  const cx=o.c*CELL+CELL/2, cy=o.r*CELL+CELL/2, R=CELL;
+  ctx.save();
+  ctx.fillStyle='rgba(0,0,0,0.16)';
+  ctx.beginPath(); ctx.ellipse(cx, cy+R*0.45, R*0.5, R*0.2,0,0,Math.PI*2); ctx.fill();
+  if(o.type==='tree'){
+    ctx.fillStyle='#7a4a22'; ctx.fillRect(cx-R*0.09, cy-R*0.1, R*0.18, R*0.55);
+    const gr=['#2f7d1e','#39992a','#256818'];
+    for(let k=0;k<3;k++){ ctx.fillStyle=gr[k%3];
+      ctx.beginPath(); ctx.arc(cx+(k-1)*R*0.22, cy-R*0.25-(k===1?R*0.12:0), R*0.32,0,Math.PI*2); ctx.fill(); }
+  } else if(o.type==='pine'){
+    ctx.fillStyle='#6a4020'; ctx.fillRect(cx-R*0.07, cy+R*0.1, R*0.14, R*0.35);
+    ctx.fillStyle='#1f6e1a';
+    for(let k=0;k<3;k++){ const yy=cy-R*0.3+k*R*0.27, w=R*(0.36-k*0.07)+R*0.1;
+      ctx.beginPath(); ctx.moveTo(cx,yy-R*0.28); ctx.lineTo(cx-w,yy+R*0.16); ctx.lineTo(cx+w,yy+R*0.16); ctx.closePath(); ctx.fill(); }
+  } else if(o.type==='blossom'){
+    ctx.fillStyle='#7a4a22'; ctx.fillRect(cx-R*0.08, cy-R*0.05, R*0.16, R*0.5);
+    const pk=['#ff7eb6','#ff9ec9','#ffb3d6'];
+    for(let k=0;k<3;k++){ ctx.fillStyle=pk[k%3];
+      ctx.beginPath(); ctx.arc(cx+(k-1)*R*0.22, cy-R*0.2-(k===1?R*0.12:0), R*0.3,0,Math.PI*2); ctx.fill(); }
+  } else if(o.type==='palm'){
+    ctx.strokeStyle='#8a5a2a'; ctx.lineWidth=R*0.16; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(cx,cy+R*0.4); ctx.quadraticCurveTo(cx+R*0.1,cy, cx+R*0.05,cy-R*0.3); ctx.stroke();
+    ctx.fillStyle='#2f9d3a';
+    for(let k=0;k<5;k++){ const a=-Math.PI/2+(k-2)*0.5;
+      ctx.beginPath(); ctx.ellipse(cx+R*0.05+Math.cos(a)*R*0.28, cy-R*0.3+Math.sin(a)*R*0.18, R*0.3, R*0.1, a,0,Math.PI*2); ctx.fill(); }
+  } else if(o.type==='rock'){
+    ctx.fillStyle='#8c8c94';
+    ctx.beginPath(); ctx.ellipse(cx, cy, R*0.42, R*0.34,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#a8a8b0';
+    ctx.beginPath(); ctx.ellipse(cx-R*0.1, cy-R*0.1, R*0.22, R*0.16,0,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
 function drawEnemy(e){
   const r=e.def.sz*CELL;
+  // เงาใต้ตัว สำหรับศัตรูบิน
+  if(e.def.fly){
+    ctx.fillStyle='rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(e.x,e.y+r*0.75,r*0.85,r*0.32,0,0,Math.PI*2); ctx.fill();
+  }
   if(e.flash>0){ctx.shadowBlur=18;ctx.shadowColor='#fff';}
   ctx.fillStyle=e.def.col;
   ctx.beginPath(); ctx.arc(e.x,e.y,r,0,Math.PI*2); ctx.fill();
