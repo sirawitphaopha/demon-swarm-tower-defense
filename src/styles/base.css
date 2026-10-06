@@ -1,0 +1,105 @@
+/* ── พื้นฐาน + ตัวแปรสี (ธีมสว่าง เขียวสด) ── */
+:root {
+  --green: #6fc233;
+  --green-dark: #2e6b12;
+  --green-deep: #234d0e;
+  --green-mid: #3a6e1c;
+  --green-soft: #5a8a2c;
+  --gold: #c47a00;
+  --red: #e0705a;
+  --red-dark: #b03020;
+  --panel-bg: rgba(238, 250, 222, 0.86);
+  --panel-border: rgba(124, 198, 62, 0.95);
+  --chip-bg: rgba(248, 253, 238, 0.92);
+  --chip-border: #a0c870;
+  /* ขนาดอักษรปรับตามความสูงจอ → แผงข้อมูลพอดีทุกขนาดจอ */
+  font-size: clamp(13px, calc(1.2vh + 3px), 20px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { width: 100%; height: 100%; }
+
+body {
+  background: #bfe89a;
+  font-family: 'Segoe UI', 'Leelawadee UI', 'Noto Sans Thai', Tahoma, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  color: var(--green-deep);
+}
+
+button { font-family: inherit; }
+
+#stage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  outline: none;
+}
+
+#toast {
+  position: fixed;
+  top: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(210, 90, 20, 0.96);
+  color: #fff;
+  padding: 0.5rem 1.3rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  z-index: 100;
+  pointer-events: none;
+  display: none;
+  font-weight: bold;
+  box-shadow: 0 4px 14px rgba(80, 30, 0, 0.3);
+}
+
+/* แผงลอยโปร่งแสง (แถบข้อมูลเกม / หน้าสร้างแมพ) */
+.panel {
+  position: fixed;
+  top: 0.8rem;
+  left: 0.8rem;
+  bottom: 0.8rem;
+  width: clamp(210px, 16rem, 300px);
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid var(--panel-border);
+  border-radius: 1rem;
+  box-shadow: 0 8px 28px rgba(30, 80, 10, 0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.7rem;
+  overflow-y: auto;
+  z-index: 10;
+  scrollbar-width: thin;
+}
+
+.grid2 { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+
+.sid-title { font-size: 1.05rem; color: var(--green-dark); font-weight: bold; text-align: center; padding: 0.1rem 0; letter-spacing: 0.5px; }
+h3 { color: #3a7818; font-size: 0.85rem; border-bottom: 1px solid #b0d880; padding-bottom: 0.15rem; margin-top: 0.2rem; }
+
+.btn {
+  background: #dff0c8; border: 1px solid var(--green); color: var(--green-deep);
+  padding: 0.35rem; border-radius: 0.4rem; cursor: pointer; font-size: 0.85rem; width: 100%;
+  transition: background 0.15s; font-weight: bold;
+}
+.btn:hover { background: #cce8a8; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn-sell { background: #ffe0d8; border-color: var(--red); color: var(--red-dark); }
+.btn-sell:hover { background: #ffcfc4; }
+
+.bottom-btns { margin-top: auto; display: flex; flex-direction: column; gap: 0.3rem; padding-top: 0.3rem; }
+.bbtn {
+  background: #e6f2d0; border: 1px solid #8cc050; color: var(--green-dark);
+  padding: 0.35rem 0.2rem; border-radius: 0.4rem; cursor: pointer; font-size: 0.82rem; width: 100%;
+  transition: background 0.15s; font-weight: bold; white-space: nowrap;
+}
+.bbtn:hover { background: #d6ecb8; }
+.bbtn.pause-active { background: #ffe9a8; border-color: #d0a028; color: #9a6a00; }
+.bbtn.red { background: #ffe0d8; border-color: var(--red); color: var(--red-dark); }
+.bbtn.red:hover { background: #ffcfc4; }

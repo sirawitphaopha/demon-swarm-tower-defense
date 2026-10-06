@@ -1,0 +1,64 @@
+/* ── แผงข้อมูลในเกม ── */
+#gameUI { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+#gameUI > * { pointer-events: auto; }
+
+.stats { display: flex; flex-direction: column; gap: 0.1rem; background: var(--chip-bg); border: 1px solid var(--chip-border); border-radius: 0.45rem; padding: 0.35rem 0.5rem; }
+.stat { display: flex; justify-content: space-between; font-size: 0.9rem; }
+.stat span:first-child { color: var(--green-mid); }
+.stat span:last-child { color: var(--gold); font-weight: bold; }
+
+/* กล่องนับถอยหลัง */
+#breakBox {
+  display: none; background: rgba(223, 240, 200, 0.95); border: 2px solid var(--green);
+  border-radius: 0.6rem; padding: 0.5rem; text-align: center;
+}
+#breakBox .blabel { font-size: 0.8rem; color: #4a7a26; margin-bottom: 0.2rem; }
+#breakBox .bnum { font-size: 2.4rem; font-weight: bold; color: #2e8b12; line-height: 1; }
+#breakBox .bsub { font-size: 0.78rem; color: var(--green-soft); margin-top: 0.2rem; }
+#breakBox .btn { margin-top: 0.35rem; }
+
+/* ความคืบหน้าเวฟ */
+#waveBox { background: rgba(223, 240, 200, 0.95); border: 1px solid #a0c870; border-radius: 0.45rem; padding: 0.4rem 0.5rem; }
+.wlabel { font-size: 0.88rem; color: var(--green-dark); font-weight: bold; }
+.wstatus { font-size: 0.78rem; color: var(--green-soft); margin-top: 0.05rem; }
+.wpbar-bg { height: 0.4rem; background: #c0dca0; border-radius: 0.2rem; margin-top: 0.3rem; overflow: hidden; }
+.wpbar { height: 100%; background: #4caf2a; border-radius: 0.2rem; transition: width 0.3s; }
+
+/* ปุ่มเลือกป้อม (2 คอลัมน์ มีภาพย่อโมเดล 3D) */
+#towerBtns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+.tbtn {
+  position: relative; background: var(--chip-bg); border: 1px solid var(--chip-border); border-radius: 0.45rem;
+  padding: 0.3rem 0.35rem; cursor: pointer; font-size: 0.75rem; text-align: left; transition: background 0.15s, box-shadow 0.15s;
+  display: flex; flex-direction: column; gap: 0.05rem; min-height: 4.4rem;
+}
+.tbtn:hover { background: #e6f2d0; }
+.tbtn.sel { background: #bfe88a; border-color: #4caf2a; box-shadow: 0 0 6px rgba(76, 175, 42, 0.6); }
+.tbtn.poor { opacity: 0.45; }
+.tbtn .thumb { position: absolute; right: 0.15rem; top: 0.15rem; width: 2.3rem; height: 2.3rem; pointer-events: none; }
+.tbtn .thumb-emoji { position: absolute; right: 0.35rem; top: 0.3rem; font-size: 1.4rem; pointer-events: none; }
+.tbtn .tn { font-weight: bold; font-size: 0.82rem; color: var(--green-deep); padding-right: 2.2rem; }
+.tbtn .tk { color: #88a860; font-size: 0.7rem; }
+.tbtn .tc { color: var(--gold); font-weight: bold; }
+.tbtn .ts { color: var(--green-soft); font-size: 0.68rem; margin-top: auto; }
+
+#info { background: var(--chip-bg); border: 1px solid var(--chip-border); border-radius: 0.45rem; padding: 0.45rem; font-size: 0.8rem; min-height: 4.6rem; color: var(--green-mid); line-height: 1.6; }
+#acts { display: none; flex-direction: column; gap: 0.25rem; }
+
+/* หยุดชั่วคราว */
+#pauseOverlay {
+  position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%);
+  font-size: 3.4rem; font-weight: bold; color: rgba(240, 255, 180, 0.97);
+  text-shadow: 0 3px 0 rgba(30, 70, 10, 0.6), 0 0 30px rgba(0, 0, 0, 0.45);
+  display: none; pointer-events: none !important; letter-spacing: 2px;
+}
+body.paused #stage { filter: brightness(0.62) saturate(0.8); }
+
+/* จบเกม */
+#endOverlay {
+  position: fixed; inset: 0; background: rgba(5, 15, 3, 0.82);
+  display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20;
+}
+#endOverlay h1 { font-size: 3.2rem; color: #bdf06a; text-shadow: 0 0 24px rgba(255, 255, 255, 0.5); margin-bottom: 0.7rem; }
+#endOverlay .sub { color: #e8ffc8; font-size: 1rem; text-align: center; margin-bottom: 1.5rem; line-height: 1.9; }
+.ebtn { background: var(--green); border: 2px solid #f4ffe0; color: #fff; font-weight: bold; padding: 0.7rem 2.8rem; font-size: 1.15rem; border-radius: 0.6rem; cursor: pointer; margin: 0.3rem; }
+.ebtn:hover { background: #7fd243; }

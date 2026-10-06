@@ -1,0 +1,16 @@
+/* ── หน้าสร้างแมพ ── */
+#editorScreen { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+#editorScreen > * { pointer-events: auto; }
+
+.ed-hint { font-size: 0.76rem; color: var(--green-soft); text-align: center; line-height: 1.5; padding: 0.1rem 0; }
+.edtool, .edth {
+  background: var(--chip-bg); border: 1px solid var(--chip-border); color: var(--green-dark); padding: 0.45rem 0.5rem;
+  border-radius: 0.45rem; cursor: pointer; font-size: 0.85rem; text-align: left; transition: background 0.15s; font-weight: bold;
+}
+.edtool:hover, .edth:hover { background: #e6f2d0; }
+.edtool.sel, .edth.sel { background: var(--green); border-color: var(--green-dark); color: #fff; box-shadow: 0 0 6px rgba(110, 194, 51, 0.6); }
+.ed-input {
+  width: 100%; padding: 0.45rem 0.55rem; border: 1px solid #a0c870; border-radius: 0.45rem;
+  background: #fff; color: var(--green-deep); font-size: 0.9rem; font-family: inherit;
+}
+.ed-input:focus { outline: none; border-color: #4caf2a; }
