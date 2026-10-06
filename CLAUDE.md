@@ -25,7 +25,7 @@
 ## โครงสร้าง `src/` (แบ่งชั้น — ชั้นล่างห้าม import ชั้นบน)
 
 ```
-config ← core ← storage ← {render, ui, audio, editor} ← app
+config ← core ← storage ← {render, ui, audio, editor, codex} ← app
 ```
 `tests/rules.test.ts` บังคับกฎนี้ (และห้าม `config/core/storage/ui/audio` import three)
 
@@ -38,6 +38,7 @@ config ← core ← storage ← {render, ui, audio, editor} ← app
 | `ui/` | DOM: เมนู, แผงข้อมูล (HUD), toast, จบเกม, แมพของฉัน + **ข้อความทั้งหมดใน `ui/strings.ts`** |
 | `audio/` | เสียง Web Audio เล่นตามเหตุการณ์ของเกม |
 | `editor/` | หน้าสร้างแมพ: `EditorModel` (กติกาล้วน) + `Editor` (ปุ่ม/การวาด) |
+| `codex/` | **สารานุกรม** (📚): `data.ts` ตัวเลขที่คำนวณจาก config, `content.ts` ข้อความไทย, `Codex.ts` หน้าจอ/routing/ค้นหา, `charts.ts` กราฟ SVG, `demos.ts` ตัวอย่างกดเล่นได้ |
 | `app/` | `App` ประกอบทุกส่วน + ลูปเดียว, `Input` (เมาส์/คีย์), `loopMath` (fixed timestep) |
 
 ## ค่าคงที่ / คอนฟิกหลัก
@@ -95,11 +96,22 @@ config ← core ← storage ← {render, ui, audio, editor} ← app
 - บันทึก/โหลด: `storage/maps.ts` ↔ `localStorage['demonSwarmMaps']` (**รูปแบบเดียวกับเวอร์ชัน 2D** — ห้ามเปลี่ยนโดยไม่ทำ migration)
 - เล่นแมพที่สร้าง: `App.startGame({ kind: 'custom', map })`
 
+### สารานุกรม (`codex/`)
+- เปิดจากปุ่ม 📚 บนเมนู/แผงเกม (เกมหยุดให้อัตโนมัติ ปิดแล้วเล่นต่อ) หรือลิงก์ตรง `/#codex/<หมวด>/<id>` เช่น `#codex/towers/laser`
+- หมวด: `howto, controls, towers, enemies, waves, difficulty, mechanics, themes, tuning` (ลำดับใน `CATEGORIES`)
+- **ตัวเลขทุกตัวดึงจาก config ผ่าน `codex/data.ts`** — ห้ามเขียนตัวเลขเกมลงใน `content.ts`
+- **เพิ่มป้อม/ศัตรู/ธีม/สิ่งกีดขวางใหม่ ต้องเพิ่มข้อความใน `codex/content.ts`** (`TOWER_TEXT`, `ENEMY_TEXT`, `THEME_TEXT`, `OBSTACLE_TEXT`) — `tests/codex.test.ts` ตรวจความครบ
+- ตัวดูโมเดล `render/ModelViewer.ts` ใช้ WebGL context แยก แต่ **ไม่มี requestAnimationFrame ของตัวเอง** — `App.frame` เรียก `codex.frame(dt)` (ขณะเปิดสารานุกรม ฉากหลักหยุดวาด)
+- ใช้ View Transitions, Popover API + Anchor Positioning, container queries, `@starting-style`, `:has()` แบบ progressive enhancement (เบราว์เซอร์เก่าใช้งานได้ปกติ)
+- หน้า "ปรับเกม" สร้างจาก `tunables()` — ถ้าเพิ่มค่าปรับได้ใหม่ใน config ให้เพิ่มแถวที่นี่ด้วย
+
 ### การบันทึก (`storage/`)
 - `demonSwarmMaps` แมพของผู้เล่น · `demonSwarmBest2` สถิติแยกตาม `โหมด_ความยาก` (key เก่า `demonSwarmBest` ไม่แตะ) · `demonSwarmSettings` ตั้งค่า
 
 ### เทสต์
 - `tests/*.test.ts` (Vitest) — กติกาเกม, เล่นครบ 10 เวฟแบบ headless, การบันทึก, editor, กฎโปรเจกต์
+- `tests/codex.test.ts` — ตัวเลขสารานุกรมตรงกับการจำลองเกมจริง + ความครบของเนื้อหา
+- `tests/e2e/codex.spec.ts` — ทุกหมวด, ลิงก์ตรง, ตัวดูโมเดล, ค้นหา, ตัวอย่างหาทาง, เปิดระหว่างเล่น
 - `tests/e2e/smoke.spec.ts` (Playwright) — URL `?test=1` เปิด `window.__DSTD__` (`app/testHook.ts`) ไว้อ่าน state/แปลงช่องเป็นตำแหน่งจอ/เสกศัตรู/วัด draw call
 
 ## ⚠️ ข้อควรระวัง

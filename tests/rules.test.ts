@@ -5,7 +5,17 @@ import { describe, expect, it } from 'vitest';
 import { ENEMIES } from '../src/config/enemies';
 import { THEMES } from '../src/config/themes';
 import { TARGET_NAME, TOWERS } from '../src/config/towers';
+import * as codexContent from '../src/codex/content';
+import { tunables } from '../src/codex/data';
 import { PLACE_FAIL, QUALITY_NAME, S, fmt } from '../src/ui/strings';
+
+/** ดึงทุก string ในโครงสร้างข้อมูล (ซ้อนกันได้) */
+function strings(v: unknown): string[] {
+  if (typeof v === 'string') return [v];
+  if (Array.isArray(v)) return v.flatMap(strings);
+  if (v && typeof v === 'object') return Object.values(v).flatMap(strings);
+  return [];
+}
 
 // กฎของโปรเจกต์ (ดู CLAUDE.md): ข้อความ UI ห้ามมีเครื่องหมายคำถาม, ห้ามใช้ alert/confirm/prompt, ทิศทาง import ระหว่างชั้น
 
@@ -51,6 +61,12 @@ describe('ข้อความ UI', () => {
     for (const t of all) expect(t, t).not.toContain('?');
   });
 
+  it('เนื้อหาสารานุกรมไม่มีเครื่องหมายคำถาม', () => {
+    const all = [...strings(codexContent), ...strings(tunables())];
+    expect(all.length).toBeGreaterThan(100);
+    for (const t of all) expect(t, t).not.toContain('?');
+  });
+
   it('ไม่มี alert / confirm / prompt ของเบราว์เซอร์', () => {
     for (const f of SRC) {
       const code = readFileSync(f, 'utf8');
@@ -69,7 +85,8 @@ describe('ทิศทาง import ระหว่างชั้น', () => {
     ui: ['config', 'core', 'storage', 'ui'],
     audio: ['config', 'core', 'audio'],
     editor: ['config', 'core', 'storage', 'render', 'ui', 'editor'],
-    app: ['config', 'core', 'storage', 'render', 'ui', 'audio', 'editor', 'app'],
+    codex: ['config', 'core', 'storage', 'render', 'ui', 'codex'],
+    app: ['config', 'core', 'storage', 'render', 'ui', 'audio', 'editor', 'codex', 'app'],
   };
   it('แต่ละไฟล์ import ได้เฉพาะชั้นที่อนุญาต', () => {
     for (const f of SRC) {
@@ -84,8 +101,8 @@ describe('ทิศทาง import ระหว่างชั้น', () => {
       }
       // ชั้นที่ไม่วาดภาพห้ามใช้ three
       if (['config', 'core', 'storage', 'ui', 'audio'].includes(layer)) expect(code, rel).not.toMatch(/from\s+'three/);
-      // EditorModel เป็นกติกาล้วน
-      if (rel === 'editor/EditorModel.ts') expect(code).not.toMatch(/from\s+'\.\.\/(render|ui|storage)\//);
+      // EditorModel และข้อมูลสารานุกรมเป็นข้อมูล/กติกาล้วน
+      if (['editor/EditorModel.ts', 'codex/data.ts', 'codex/content.ts'].includes(rel)) expect(code, rel).not.toMatch(/from\s+'\.\.\/(render|ui|storage)\//);
     }
   });
 });

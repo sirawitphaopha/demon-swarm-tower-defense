@@ -23,6 +23,7 @@
     <button class="mbtn" data-nav="mapsScreen">🗂️ แมพของฉัน</button>
     <button class="mbtn" data-nav="settingsScreen">⚙️ ตั้งค่า</button>
     <button class="mbtn" data-nav="helpScreen">📖 วิธีเล่น</button>
+    <button class="mbtn" id="btnCodex">📚 สารานุกรม</button>
   </div>
 </div>
 
@@ -185,6 +186,7 @@
       <button class="bbtn" id="btnSpd">⚡ Speed x1</button>
       <button class="bbtn" id="btnMute">🔊 เสียง: เปิด</button>
       <button class="bbtn red" data-action="quit">🚪 Menu</button>
+      <button class="bbtn wide" id="btnCodexGame">📚 สารานุกรม</button>
     </div>
   </div>
 
@@ -198,6 +200,17 @@
       <button class="ebtn" data-action="quit">🏠 Menu</button>
     </div>
   </div>
+</div>
+
+<!-- สารานุกรม (#codex/...) -->
+<div id="codexScreen" style="display:none">
+  <header class="cx-top">
+    <button class="cx-btn close" id="cxClose">✕ ปิดสารานุกรม</button>
+    <nav class="cx-crumb" id="cxCrumb" aria-label="ตำแหน่งปัจจุบัน"></nav>
+    <input id="cxSearch" class="cx-search" type="search" placeholder="🔎 ค้นหา เช่น เลเซอร์ แตน ระเบิด ราคา" autocomplete="off">
+  </header>
+  <nav class="cx-nav" id="cxNav" aria-label="หมวดสารานุกรม"></nav>
+  <main class="cx-main" id="cxMain"></main>
 </div>
 
 <div id="toast"></div>

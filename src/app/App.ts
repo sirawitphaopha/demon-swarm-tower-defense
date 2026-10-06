@@ -12,6 +12,7 @@ import type { MapData } from '../core/map';
 import { generateMap } from '../core/mapgen';
 import { computeDist, spawnReachable } from '../core/pathfinding';
 import { mulberry32, randomSeed } from '../core/rng';
+import { Codex } from '../codex/Codex';
 import { Editor } from '../editor/Editor';
 import { CameraController } from '../render/CameraController';
 import { sharedUniforms } from '../render/materials';
@@ -52,6 +53,7 @@ export class App {
   readonly screens: Screens;
   readonly hud: Hud;
   readonly editor: Editor;
+  readonly codex: Codex;
   settings: Settings;
   maps: SavedMap[];
 
@@ -73,6 +75,8 @@ export class App {
   readonly testMode: boolean;
   private perf: number[] = [];
   private perfTime = 0;
+  /** เปิดสารานุกรมระหว่างเล่น → ปิดแล้วเล่นต่อ */
+  private resumeAfterCodex = false;
 
   constructor(canvas: HTMLCanvasElement) {
     const params = new URLSearchParams(location.search);
@@ -129,6 +133,29 @@ export class App {
       play: (m) => this.startGame({ kind: 'custom', map: m }),
     });
 
+    this.codex = new Codex({
+      onOpen: () => {
+        this.input.enabled = false;
+        const g = this.game;
+        if (this.mode === 'game' && g && !g.paused && !g.over) {
+          g.togglePause();
+          this.hud.setPaused(true);
+          this.resumeAfterCodex = true;
+        }
+      },
+      onClose: () => {
+        this.input.enabled = true;
+        const g = this.game;
+        if (this.resumeAfterCodex && g && g.paused && !g.over) {
+          g.togglePause();
+          this.hud.setPaused(false);
+        }
+        this.resumeAfterCodex = false;
+      },
+    });
+    $('btnCodex').addEventListener('click', () => this.codex.openAt(''));
+    $('btnCodexGame').addEventListener('click', () => this.codex.openAt(''));
+
     this.input = new Input(canvas, {
       click: (x, y) => this.onClick(x, y),
       rightClick: () => {
@@ -163,6 +190,8 @@ export class App {
     this.showScreen('menuScreen');
     this.setMenuBackdrop();
     this.cam.fit(true);
+    // ลิงก์ตรงเข้าสารานุกรม เช่น /#codex/towers/laser
+    this.codex.sync();
     requestAnimationFrame(this.frame);
   }
 
@@ -380,6 +409,10 @@ export class App {
   }
 
   private onKey(code: string, e: KeyboardEvent): void {
+    if (this.codex.isOpen) {
+      if (code === 'Escape') this.codex.back();
+      return;
+    }
     if (code === 'KeyF') this.cam.fit();
     if (this.mode !== 'game') return;
     if (code === 'Space') {
@@ -415,6 +448,11 @@ export class App {
     requestAnimationFrame(this.frame);
     const realDt = Math.min(Math.max(0, (now - this.last) / 1000), 0.1);
     this.last = now;
+    if (this.codex.isOpen) {
+      // สารานุกรมเต็มจอ: วาดเฉพาะตัวดูโมเดล (ฉากหลักหยุดไว้)
+      this.codex.frame(realDt);
+      return;
+    }
     this.realTime += realDt;
     if (this.mode !== 'menu') this.keyboardCamera(realDt);
     this.cam.update(realDt);
