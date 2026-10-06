@@ -151,6 +151,8 @@ export class Effects {
     this.parts = keep;
     this.solid.count = ns;
     this.glow.count = ng;
+    this.solid.visible = ns > 0;
+    this.glow.visible = ng > 0;
     for (const m of [this.solid, this.glow]) {
       m.instanceMatrix.needsUpdate = true;
       if (m.instanceColor) m.instanceColor.needsUpdate = true;
@@ -167,6 +169,7 @@ export class Effects {
       nr++;
     }
     this.ringMesh.count = nr;
+    this.ringMesh.visible = nr > 0;
     this.ringMesh.instanceMatrix.needsUpdate = true;
     if (this.ringMesh.instanceColor) this.ringMesh.instanceColor.needsUpdate = true;
   }

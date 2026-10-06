@@ -30,6 +30,8 @@ export class SceneManager {
     this.renderer.toneMappingExposure = 1.05;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    // นับ draw call รวมทุก pass ของเฟรม (reset เองตอนเริ่ม render)
+    this.renderer.info.autoReset = false;
 
     this.hemi = new THREE.HemisphereLight(0xeaf6ff, 0x6a8a40, 1.55);
     this.scene.add(this.hemi);
@@ -133,6 +135,7 @@ export class SceneManager {
   }
 
   render(): void {
+    this.renderer.info.reset();
     if (this.composer) this.composer.render();
     else this.renderer.render(this.scene, this.camera);
   }

@@ -95,6 +95,7 @@ export class UnitsView {
   private corpses: Corpse[] = [];
   private time = 0;
   private shadows = true;
+  private outlines = true;
   selectedTowerId = -1;
 
   constructor(quality: Quality) {
@@ -140,12 +141,10 @@ export class UnitsView {
   setQuality(q: Quality): void {
     const cfg = QUALITY[q];
     this.shadows = cfg.shadowMap > 0;
+    this.outlines = cfg.outline;
     this.effects.setMax(cfg.particles);
     const all = [...this.enemyPools.values(), ...this.towerBase.values(), ...this.towerHead.values()];
-    for (const p of all) {
-      p.mesh.castShadow = this.shadows;
-      if (p.outline) p.outline.visible = cfg.outline;
-    }
+    for (const p of all) p.mesh.castShadow = this.shadows;
   }
 
   private makePool(geo: THREE.BufferGeometry, cap: number, withOutline: boolean): Pool {
@@ -312,19 +311,20 @@ export class UnitsView {
     this.updateProjectiles(game, alpha);
     this.barBg.count = bars;
     this.barFill.count = bars;
+    this.barBg.visible = this.barFill.visible = bars > 0;
     this.barBg.instanceMatrix.needsUpdate = true;
     this.barFill.instanceMatrix.needsUpdate = true;
     if (this.barFill.instanceColor) this.barFill.instanceColor.needsUpdate = true;
   }
 
   private hideAll(): void {
-    for (const p of [...this.enemyPools.values(), ...this.towerBase.values(), ...this.towerHead.values()]) {
-      p.mesh.count = 0;
-      if (p.outline) p.outline.count = 0;
-      if (p.extra) p.extra.count = 0;
+    for (const p of [...this.enemyPools.values(), ...this.towerBase.values(), ...this.towerHead.values()]) this.commit(p, 0);
+    for (const m of this.projMeshes.values()) {
+      m.count = 0;
+      m.visible = false;
     }
-    for (const m of this.projMeshes.values()) m.count = 0;
     this.barBg.count = this.barFill.count = this.blobs.count = 0;
+    this.barBg.visible = this.barFill.visible = this.blobs.visible = false;
   }
 
   /** ตำแหน่งศัตรูที่คำนวณระหว่างเฟรม */
@@ -400,14 +400,19 @@ export class UnitsView {
 
   private commit(p: Pool, n: number): void {
     p.mesh.count = n;
+    p.mesh.visible = n > 0;
     p.mesh.instanceMatrix.needsUpdate = true;
     p.flash.needsUpdate = true;
     p.phase.needsUpdate = true;
     if (p.outline) {
       p.outline.count = n;
+      p.outline.visible = n > 0 && this.outlines;
       if (p.outline.instanceColor) p.outline.instanceColor.needsUpdate = true;
     }
-    if (p.extra) p.extra.count = n;
+    if (p.extra) {
+      p.extra.count = n;
+      p.extra.visible = n > 0;
+    }
   }
 
   private updateEnemies(game: Game, alpha: number, dt: number, camera: THREE.Camera): number {
@@ -490,6 +495,7 @@ export class UnitsView {
     }
     for (const id of ENEMY_ORDER) this.commit(this.enemyPools.get(id)!, counts.get(id)!);
     this.blobs.count = blobs;
+    this.blobs.visible = blobs > 0;
     this.blobs.instanceMatrix.needsUpdate = true;
     return bars;
   }
@@ -537,6 +543,7 @@ export class UnitsView {
     for (const id of TORDER) {
       const mesh = this.projMeshes.get(id)!;
       mesh.count = counts.get(id)!;
+      mesh.visible = mesh.count > 0;
       mesh.instanceMatrix.needsUpdate = true;
     }
   }
