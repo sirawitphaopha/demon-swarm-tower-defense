@@ -61,6 +61,8 @@ export class App {
   selTowerId = -1;
   private source: MapSource = { kind: 'random' };
   private hoverCell: CellHit | null = null;
+  /** ตำแหน่งเมาส์ล่าสุดบน canvas (null = อยู่นอก canvas) */
+  private mouse: { x: number; y: number } | null = null;
   private acc = 0;
   private alpha = 0;
   private last = performance.now();
@@ -135,6 +137,7 @@ export class App {
       hover: (x, y) => this.onHover(x, y),
       leave: () => {
         this.hoverCell = null;
+        this.mouse = null;
         if (this.mode === 'editor') this.editor.hover(null);
       },
       paint: (x, y, erase, first) => {
@@ -147,6 +150,11 @@ export class App {
       key: (code, e) => this.onKey(code, e),
     });
     window.addEventListener('resize', () => this.onResize());
+    // ปุ่มที่ถูกคลิกไม่ค้างโฟกัส (กด Space แล้วจะไม่ไปกดปุ่มซ้ำ)
+    document.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement | null)?.closest('button');
+      if (b) b.blur();
+    });
     // ปลุกเสียงหลัง user gesture แรก
     window.addEventListener('pointerdown', () => this.sfx.init(), { once: true });
 
@@ -338,6 +346,7 @@ export class App {
   }
 
   private onHover(x: number, y: number): void {
+    this.mouse = { x, y };
     this.hoverCell = this.cell(x, y);
     if (this.mode === 'editor') this.editor.hover(this.hoverCell);
   }
@@ -409,6 +418,8 @@ export class App {
     this.realTime += realDt;
     if (this.mode !== 'menu') this.keyboardCamera(realDt);
     this.cam.update(realDt);
+    // กล้องขยับ → ช่องใต้เมาส์เปลี่ยนแม้เมาส์อยู่นิ่ง
+    if (this.mouse && this.mode !== 'menu') this.onHover(this.mouse.x, this.mouse.y);
     sharedUniforms.uTime.value = this.realTime;
     sharedUniforms.uWind.value = this.sm.quality === 'low' ? 0 : 1;
 

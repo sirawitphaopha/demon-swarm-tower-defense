@@ -131,7 +131,7 @@ ${flash ? 'attribute float aFlash;\nvarying float vFlash;' : ''}`,
       .replace(
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>
-totalEmissiveRadiance += diffuseColor.rgb * vGlow * 2.6;
+totalEmissiveRadiance += diffuseColor.rgb * vGlow * 1.7;
 ${flash ? 'diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), vFlash * 0.75);\ntotalEmissiveRadiance += vec3(vFlash * 0.55);' : ''}`,
       );
   };

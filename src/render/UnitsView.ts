@@ -119,7 +119,7 @@ export class UnitsView {
     // แถบเลือด (billboard)
     const barGeo = new THREE.PlaneGeometry(1, 1);
     this.barBg = new THREE.InstancedMesh(barGeo, new THREE.MeshBasicMaterial({ color: 0x111111, depthTest: false, transparent: true, opacity: 0.85 }), 512);
-    this.barFill = new THREE.InstancedMesh(barGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }), 512);
+    this.barFill = new THREE.InstancedMesh(barGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, transparent: true }), 512);
     this.barFill.setColorAt(0, tmpC.set(0xffffff));
     for (const m of [this.barBg, this.barFill]) {
       m.count = 0;

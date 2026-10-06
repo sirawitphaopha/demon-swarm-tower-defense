@@ -27,16 +27,16 @@ export class SceneManager {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: false });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.NeutralToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    this.renderer.toneMappingExposure = 1.0;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     // นับ draw call รวมทุก pass ของเฟรม (reset เองตอนเริ่ม render)
     this.renderer.info.autoReset = false;
 
-    this.hemi = new THREE.HemisphereLight(0xeaf6ff, 0x6a8a40, 1.55);
+    this.hemi = new THREE.HemisphereLight(0xeaf6ff, 0x6a8a40, 1.35);
     this.scene.add(this.hemi);
 
-    this.sun = new THREE.DirectionalLight(0xfff1d8, 2.3);
+    this.sun = new THREE.DirectionalLight(0xfff1d8, 2.2);
     this.sun.position.set(-26, 44, 30);
     this.sun.target.position.set(0, 0, 0);
     const sc = this.sun.shadow.camera;

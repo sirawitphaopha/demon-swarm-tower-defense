@@ -62,7 +62,7 @@ button { font-family: inherit; }
   top: 0.8rem;
   left: 0.8rem;
   bottom: 0.8rem;
-  width: clamp(210px, 16rem, 300px);
+  width: clamp(210px, 16rem, 340px);
   background: var(--panel-bg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);

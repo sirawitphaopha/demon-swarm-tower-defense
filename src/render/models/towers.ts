@@ -163,17 +163,17 @@ function laser(): TowerModel {
   b.add(cyl(0.28, 0.38, 0.4, 6), '#3a4266', { pos: [0, 0.27, 0] });
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2 + Math.PI / 6;
-    b.add(box(0.03, 0.18, 0.08), '#5aa8ff', { pos: [Math.cos(a) * 0.33, 0.27, Math.sin(a) * 0.33], rot: [0, -a, 0], glow: 0.9 });
+    b.add(box(0.03, 0.18, 0.08), '#5aa8ff', { pos: [Math.cos(a) * 0.33, 0.27, Math.sin(a) * 0.33], rot: [0, -a, 0], glow: 1.4 });
   }
   for (let i = 0; i < 3; i++) {
     const a = (i / 3) * Math.PI * 2;
     b.limb([Math.cos(a) * 0.24, 0.45, Math.sin(a) * 0.24], [Math.cos(a) * 0.2, 0.95, Math.sin(a) * 0.2], 0.04, 0.02, '#2c3250', {}, 4);
-    b.add(octa(0.035), '#8cc8ff', { pos: [Math.cos(a) * 0.2, 0.97, Math.sin(a) * 0.2], glow: 1 });
+    b.add(octa(0.035), '#8cc8ff', { pos: [Math.cos(a) * 0.2, 0.97, Math.sin(a) * 0.2], glow: 1.8 });
   }
   const h = new ModelBuilder();
-  h.add(octa(0.2), '#4a9cff', { pos: [0, 0.22, 0], scale: [0.75, 1.45, 0.75], glow: 0.85 });
-  h.add(octa(0.1), '#d8ecff', { pos: [0, 0.22, 0], scale: [0.75, 1.45, 0.75], glow: 1 });
-  h.add(cone(0.05, 0.16, 6), '#9ccfff', { pos: [0.2, 0.22, 0], rot: [0, 0, -Math.PI / 2], glow: 1 });
+  h.add(octa(0.2), '#4a9cff', { pos: [0, 0.22, 0], scale: [0.75, 1.45, 0.75], glow: 1.3 });
+  h.add(octa(0.1), '#d8ecff', { pos: [0, 0.22, 0], scale: [0.75, 1.45, 0.75], glow: 2.2 });
+  h.add(cone(0.05, 0.16, 6), '#9ccfff', { pos: [0.2, 0.22, 0], rot: [0, 0, -Math.PI / 2], glow: 2 });
   return { base: b.build(), head: h.build(), headY: 0.6, muzzle: [0.28, 0.22], recoil: 0.0 };
 }
 

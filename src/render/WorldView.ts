@@ -164,8 +164,9 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uMud * 0.55, smoothstep(0.4, 0.9, wm.r)
           float rip = n1 + n2 - 1.0;
           col += vec3(0.06, 0.08, 0.09) * rip * 1.6;
           // ประกายแดดเป็นหย่อม
-          float glint = smoothstep(0.86, 0.98, n1 * n2 * 1.75) * smoothstep(0.55, 0.75, w);
-          col += vec3(0.9, 0.97, 1.0) * glint * 0.32;
+          float n3 = vnoise(q * 7.5 + vec2(uTime * 0.9, -uTime * 0.6));
+          float glint = smoothstep(0.8, 0.96, n3 * (0.6 + n1 * 0.6)) * smoothstep(0.55, 0.75, w);
+          col += vec3(0.9, 0.97, 1.0) * glint * 0.45;
           // ฟองริมฝั่ง
           float foam = (1.0 - smoothstep(0.5, 0.66, w)) * (0.65 + 0.35 * sin(uTime * 2.0 + vPos.x * 4.0 + vPos.z * 3.0));
           col = mix(col, vec3(0.93, 0.98, 1.0), foam * 0.75);
@@ -383,11 +384,11 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uMud * 0.55, smoothstep(0.4, 0.9, wm.r)
     b.add(torus(0.9, 0.16, 5, 12, Math.PI), '#4a3a4e', { rot: [0, Math.PI / 2, 0] });
     for (const s of [1, -1]) {
       b.add(box(0.36, 0.5, 0.36), '#3a2e3e', { pos: [0, 0.25, 0.9 * s] });
-      b.add(box(0.06, 0.3, 0.2), '#ff3a2a', { pos: [0.19, 0.6, 0.9 * s], glow: 1 });
+      b.add(box(0.06, 0.3, 0.2), '#ff3a2a', { pos: [0.19, 0.6, 0.9 * s], glow: 1.8 });
     }
     for (let i = 0; i < 5; i++) {
       const a = 0.35 + (i / 4) * (Math.PI - 0.7);
-      b.add(box(0.05, 0.16, 0.08), '#ff4a2a', { pos: [0.17, Math.sin(a) * 0.9, Math.cos(a) * 0.9], rot: [-a + Math.PI / 2, 0, 0], glow: 1 });
+      b.add(box(0.05, 0.16, 0.08), '#ff4a2a', { pos: [0.17, Math.sin(a) * 0.9, Math.cos(a) * 0.9], rot: [-a + Math.PI / 2, 0, 0], glow: 1.8 });
     }
     const arch = new THREE.Mesh(this.track(b.build()), this.toon);
     arch.position.set(-HALF_W - 0.25, 0, z);
