@@ -44,6 +44,10 @@ export interface Tower {
   y: number;
   /** cooldown ที่เหลือก่อนยิงนัดถัดไป */
   cd: number;
+  /** กระสุนที่เหลือในชุดปัจจุบัน */
+  ammo: number;
+  /** เวลาเติมกระสุนที่เหลือ (วินาที) 0 = ไม่ได้เติมอยู่ */
+  reloadLeft: number;
   /** เงินที่ลงไปทั้งหมด (รวมอัปเกรด) */
   totalCost: number;
   kills: number;

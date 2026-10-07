@@ -63,6 +63,67 @@ describe('การยิง', () => {
     expect(dmgB).toBeCloseTo(TOWERS.cannon.dmg * (1 - 0.5 * 0.4), 4);
   });
 
+  it('ยิงครบชุดแล้วหยุดเติมกระสุน เติมเสร็จได้กระสุนเต็มชุด', () => {
+    const g = newGame();
+    g.gold = 1e6;
+    const res = g.place('cannon', 6, SPAWN_ROW - 1);
+    if (!res.ok) throw new Error();
+    const tw = res.tower;
+    const C = TOWERS.cannon;
+    expect(tw.ammo).toBe(C.mag);
+    const e = g.spawnEnemy('boss');
+    e.x = 6.5;
+    e.spd = 0;
+    e.hp = e.maxHp = 1e9;
+    g.drainEvents();
+    let fired = 0;
+    let reloading = 0;
+    let reloaded = 0;
+    const run = (sec: number) => {
+      for (let i = 0; i < Math.round(sec * 60); i++) {
+        g.step(1 / 60);
+        for (const ev of g.drainEvents()) {
+          if (ev.type === 'towerFired') fired++;
+          if (ev.type === 'towerReloading') reloading++;
+          if (ev.type === 'towerReloaded') reloaded++;
+        }
+      }
+    };
+    // ยิงครบชุด (นัดแรกทันที ที่เหลือทุก 1/rate) → เข้าโหมดเติม
+    run((C.mag - 1) / C.rate + 0.05);
+    expect(fired).toBe(C.mag);
+    expect(reloading).toBe(1);
+    expect(tw.ammo).toBe(0);
+    expect(tw.reloadLeft).toBeGreaterThan(0);
+    // ระหว่างเติมไม่ยิงเลย
+    run(C.reload - 0.2);
+    expect(fired).toBe(C.mag);
+    // เติมเสร็จ → ได้กระสุนเต็มชุดแล้วยิงต่อทันที
+    run(0.3);
+    expect(reloaded).toBe(1);
+    expect(fired).toBe(C.mag + 1);
+    expect(tw.ammo).toBe(C.mag - 1);
+  });
+
+  it('อัปเกรดระหว่างเติมกระสุน → ได้กระสุนเต็มชุดของขั้นใหม่ทันที', () => {
+    const g = newGame();
+    g.gold = 1e6;
+    const res = g.place('stone', 6, SPAWN_ROW - 1);
+    if (!res.ok) throw new Error();
+    res.tower.ammo = 0;
+    res.tower.reloadLeft = 1;
+    expect(g.upgrade(res.tower.id).ok).toBe(true);
+    expect(res.tower.reloadLeft).toBe(0);
+    expect(res.tower.ammo).toBe(TOWERS.arrow.mag);
+  });
+
+  it('ทุกป้อมมีกระสุนต่อชุดและเวลาเติมกระสุนเป็นบวก', () => {
+    for (const t of Object.values(TOWERS)) {
+      expect(t.mag, t.id).toBeGreaterThanOrEqual(1);
+      expect(t.reload, t.id).toBeGreaterThan(0);
+    }
+  });
+
   it('กระสุนหายถ้าเป้าตายก่อนถึง', () => {
     const g = newGame();
     const res = g.place('stone', 6, SPAWN_ROW - 2);
@@ -81,6 +142,6 @@ describe('การยิง', () => {
     const g = newGame({ difficulty: 'hard' });
     g.wave = 7;
     const e = g.spawnEnemy('spider');
-    expect(e.maxHp).toBeCloseTo(150 * 2.0 * 1.4);
+    expect(e.maxHp).toBeCloseTo(150 * 2.8 * 1.4);
   });
 });

@@ -139,12 +139,16 @@ export class Game {
           }
         }
       }
-      if (this.waveElapsed > cfg.dur && this.enemies.length === 0) {
+      // ปล่อยศัตรูครบเวลาแล้ว → เวฟถัดไปมาต่อทันทีไม่มีพัก (เวฟสุดท้ายของโหมดปกติรอเคลียร์สนามแล้วชนะ)
+      if (this.waveElapsed > cfg.dur) {
         if (isWin(this.mode, this.wave)) {
-          this.endGame(true);
-          return;
+          if (this.enemies.length === 0) {
+            this.endGame(true);
+            return;
+          }
+        } else {
+          this.beginWave(this.wave + 1);
         }
-        this.beginBreak();
       }
     }
 
@@ -266,10 +270,17 @@ export class Game {
   private updateTowers(dt: number): void {
     for (const tw of this.towers) {
       tw.cd = Math.max(0, tw.cd - dt);
+      if (tw.reloadLeft > 0) {
+        tw.reloadLeft = Math.max(0, tw.reloadLeft - dt);
+        if (tw.reloadLeft > 0) continue;
+        tw.ammo = tw.def.mag;
+        this.events.push({ type: 'towerReloaded', towerId: tw.id });
+      }
       if (tw.cd > 0) continue;
       const tgt = pickTarget(tw, this.enemies, this.dist);
       if (!tgt) continue;
       tw.cd = 1 / tw.def.rate;
+      tw.ammo--;
       tw.angle = Math.atan2(tgt.y - tw.y, tgt.x - tw.x);
       tw.aimId = tgt.id;
       this.projectiles.push({
@@ -286,6 +297,11 @@ export class Game {
         towerId: tw.id,
       });
       this.events.push({ type: 'towerFired', towerId: tw.id, kind: tw.kind, aoe: tw.def.aoe > 0 });
+      // ยิงหมดชุด → หยุดเติมกระสุน
+      if (tw.ammo <= 0) {
+        tw.reloadLeft = tw.def.reload;
+        this.events.push({ type: 'towerReloading', towerId: tw.id });
+      }
     }
   }
 
@@ -391,6 +407,8 @@ export class Game {
       x: c + 0.5,
       y: r + 0.5,
       cd: 0,
+      ammo: def.mag,
+      reloadLeft: 0,
       totalCost: def.cost,
       kills: 0,
       angle: 0,
@@ -421,6 +439,8 @@ export class Game {
     tw.def = nxt;
     tw.kind = nxt.id;
     tw.cd = 0;
+    tw.ammo = nxt.mag; // อัปเกรดแล้วได้กระสุนเต็มชุด
+    tw.reloadLeft = 0;
     this.events.push({ type: 'towerUpgraded', id, kind: nxt.id });
     return { ok: true };
   }

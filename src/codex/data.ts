@@ -45,8 +45,12 @@ export function upgradeChain(): ChainStep[] {
 
 export interface TowerStats {
   id: TowerId;
-  /** ดาเมจต่อวินาที (ต่อเป้าเดียว) */
+  /** ดาเมจต่อวินาทีระยะยาว รวมเวลาเติมกระสุน (ต่อเป้าเดียว) */
   dps: number;
+  /** ดาเมจต่อวินาทีขณะยิงรัว ไม่นับเวลาเติมกระสุน */
+  burstDps: number;
+  /** เวลายิงหนึ่งชุดจนหมด + เติมกระสุน (วินาที) */
+  cycle: number;
   dpsPerGold: number;
   /** ระยะเวลาระหว่างนัด (วินาที) */
   cooldown: number;
@@ -61,11 +65,15 @@ export interface TowerStats {
 
 export function towerStats(id: TowerId): TowerStats {
   const t = TOWERS[id];
-  const dps = t.dmg * t.rate;
+  // ยิงนัดแรกทันที นัดถัดไปทุก 1/rate จนหมดชุด แล้วรอเติมกระสุนก่อนยิงนัดแรกของชุดถัดไป
+  const cycle = (t.mag - 1) / t.rate + Math.max(t.reload, 1 / t.rate);
+  const dps = (t.dmg * t.mag) / cycle;
   const tier = upgradeChain().findIndex((s) => s.id === id) + 1;
   return {
     id,
     dps,
+    burstDps: t.dmg * t.rate,
+    cycle,
     dpsPerGold: dps / t.cost,
     cooldown: 1 / t.rate,
     pspd: t.pspd,
@@ -196,7 +204,7 @@ export function tunables(): Tunable[] {
   const rows: Tunable[] = [
     { group: 'สนามและกติกา', label: 'ขนาดสนาม (คอลัมน์ × แถว)', value: `${COLS} × ${ROWS}`, path: `${C} → COLS, ROWS` },
     { group: 'สนามและกติกา', label: 'โซนห้ามวางฝั่งซ้าย (คอลัมน์)', value: fmtN(SPAWN_GUARD), path: `${C} → SPAWN_GUARD` },
-    { group: 'สนามและกติกา', label: 'เวลาพักระหว่างเวฟ (วินาที)', value: fmtN(BREAK_SEC), path: `${C} → BREAK_SEC` },
+    { group: 'สนามและกติกา', label: 'เวลาเตรียมตัวก่อน Wave 1 (วินาที)', value: fmtN(BREAK_SEC), path: `${C} → BREAK_SEC` },
     { group: 'สนามและกติกา', label: 'เงินเริ่มต้น', value: fmtN(START_GOLD), path: `${C} → START_GOLD` },
     { group: 'สนามและกติกา', label: 'ชีวิตเริ่มต้น (ศัตรูหลุดได้)', value: fmtN(START_LIVES), path: `${C} → START_LIVES` },
     { group: 'สนามและกติกา', label: 'สัดส่วนเงินคืนเมื่อขาย', value: `${fmtN(SELL_RATIO * 100)}%`, path: `${C} → SELL_RATIO` },
@@ -214,6 +222,8 @@ export function tunables(): Tunable[] {
       { group: g, label: 'ระยะยิง (ช่อง)', value: fmtN(t.range), path: `${p}.range` },
       { group: g, label: 'ดาเมจต่อนัด', value: fmtN(t.dmg), path: `${p}.dmg` },
       { group: g, label: 'นัดต่อวินาที', value: fmtN(t.rate), path: `${p}.rate` },
+      { group: g, label: 'กระสุนต่อชุด (นัด)', value: fmtN(t.mag), path: `${p}.mag` },
+      { group: g, label: 'เวลาเติมกระสุน (วินาที)', value: fmtN(t.reload), path: `${p}.reload` },
       { group: g, label: 'ความเร็วกระสุน (px/s เดิม)', value: fmtN(Math.round(t.pspd * REF_CELL_PX)), path: `${p}.pspd` },
       { group: g, label: 'รัศมีระเบิด (ช่อง)', value: t.aoe ? fmtN(t.aoe) : '-', path: `${p}.aoe` },
       { group: g, label: 'อัปเกรดเป็น', value: t.upgTo ? TOWERS[t.upgTo].name : '-', path: `${p}.upgTo` },
@@ -241,9 +251,9 @@ export function tunables(): Tunable[] {
   });
   rows.push(
     { group: 'เวฟ (โหมดไม่สิ้นสุด)', label: 'เวลาปล่อยศัตรูต่อเวฟ', value: '48 วิ', path: 'config/waves.ts → getWaveCfg() dur' },
-    { group: 'เวฟ (โหมดไม่สิ้นสุด)', label: 'ช่วงเกิด', value: 'max(0.45, 0.72 − 0.03×n)', path: 'config/waves.ts → getWaveCfg() iv' },
-    { group: 'เวฟ (โหมดไม่สิ้นสุด)', label: 'ตัวคูณเลือด', value: '3.0 × 1.16ⁿ', path: 'config/waves.ts → getWaveCfg() sc' },
-    { group: 'เวฟ (โหมดไม่สิ้นสุด)', label: 'รอบบอส', value: 'max(7, 12 − 0.4×n) วิ', path: 'config/waves.ts → getWaveCfg() bIv' },
+    { group: 'เวฟ (โหมดไม่สิ้นสุด)', label: 'ช่วงเกิด', value: 'max(0.35, 0.58 − 0.02×n)', path: 'config/waves.ts → getWaveCfg() iv' },
+    { group: 'เวฟ (โหมดไม่สิ้นสุด)', label: 'ตัวคูณเลือด', value: '4.8 × 1.16ⁿ', path: 'config/waves.ts → getWaveCfg() sc' },
+    { group: 'เวฟ (โหมดไม่สิ้นสุด)', label: 'รอบบอส', value: 'max(6, 10 − 0.4×n) วิ', path: 'config/waves.ts → getWaveCfg() bIv' },
   );
   for (const d of DIFF_ORDER) {
     rows.push({ group: 'ความยาก', label: d, value: `เลือด ×${DIFF[d].hp} · เงิน ×${DIFF[d].reward}`, path: `config/difficulty.ts → DIFF.${d}` });

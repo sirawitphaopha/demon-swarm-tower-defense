@@ -18,7 +18,8 @@ describe('ตัวเลขสารานุกรมตรงกับเก�
       g.skipBreak();
       let spawns = 0;
       let bosses = 0;
-      while (g.phase === 'playing' && g.time < 400) {
+      // เวฟต่อกันไม่มีพัก → นับจนกว่าเลขเวฟจะเปลี่ยน
+      while (g.wave === n && g.time < 400) {
         g.step(1 / 60);
         for (const ev of g.drainEvents()) if (ev.type === 'enemySpawned') ev.boss ? bosses++ : spawns++;
       }
@@ -38,18 +39,20 @@ describe('ตัวเลขสารานุกรมตรงกับเก�
     }
   });
 
-  it('DPS = ดาเมจ × เรท และความเร็วกระสุนแปลงกลับเป็น px/s เดิมได้', () => {
-    expect(towerStats('laser').dps).toBe(150 * 2.5);
-    expect(towerStats('machinegun').dpsPerGold).toBeCloseTo((28 * 5) / 500);
+  it('DPS ขณะยิงรัว = ดาเมจ × เรท · DPS ระยะยาวรวมเวลาเติมกระสุน · ความเร็วกระสุนแปลงกลับเป็น px/s เดิมได้', () => {
+    const L = TOWERS.laser;
+    expect(towerStats('laser').burstDps).toBe(L.dmg * L.rate);
+    expect(towerStats('laser').dps).toBeCloseTo((L.dmg * L.mag) / ((L.mag - 1) / L.rate + L.reload));
+    expect(towerStats('machinegun').dpsPerGold).toBeCloseTo(towerStats('machinegun').dps / TOWERS.machinegun.cost);
     expect(towerStats('arrow').pspdPx).toBeCloseTo(360);
     expect(towerStats('stone').tier).toBe(1);
     expect(towerStats('laser').tier).toBe(6);
   });
 
   it('เลือด/รางวัลศัตรูตามสูตร', () => {
-    expect(enemyHp('spider', 7, 'hard')).toBeCloseTo(150 * 2.0 * DIFF.hard.hp);
-    expect(enemyHp('maggot', 12, 'normal')).toBeCloseTo(70 * 3.0 * 1.16 ** 2);
-    expect(enemyReward('scarab', 'easy')).toBe(Math.floor(55 * 1.3));
+    expect(enemyHp('spider', 7, 'hard')).toBeCloseTo(150 * 2.8 * DIFF.hard.hp);
+    expect(enemyHp('maggot', 12, 'normal')).toBeCloseTo(70 * 4.8 * 1.16 ** 2);
+    expect(enemyReward('scarab', 'easy')).toBe(Math.floor(ENEMIES.scarab.reward * 1.3));
     expect(crossTime('wasp')).toBeCloseTo(50 / ENEMIES.wasp.spd);
     expect(ENEMIES.boss.spd * REF_CELL_PX).toBeCloseTo(30);
   });
@@ -75,6 +78,29 @@ describe('ตัวเลขสารานุกรมตรงกับเก�
     for (const id of ENEMY_ORDER) expect(t.some((r) => r.path.includes(`ENEMIES.${id}.hp`))).toBe(true);
     for (let i = 0; i < BASE_WAVES; i++) expect(t.some((r) => r.path.includes(`WAVE_CFG[${i}]`))).toBe(true);
     for (const r of t) expect(r.path).toMatch(/^(config|core)\//);
+  });
+});
+
+describe('DPS ระยะยาวตรงกับการยิงจริงในเกม', () => {
+  it('ทุกป้อม ยิงเป้าที่ไม่ตายนาน 60 วินาที ดาเมจเฉลี่ยใกล้ DPS ระยะยาว', () => {
+    for (const id of TORDER) {
+      const g = newGame();
+      g.gold = 1e6;
+      const res = g.place(id, 6, 13);
+      if (!res.ok) throw new Error(id);
+      const e = g.spawnEnemy('boss');
+      e.x = 6.5;
+      e.y = 14.5;
+      e.spd = 0;
+      e.hp = e.maxHp = 1e12;
+      for (let i = 0; i < 60 * 60; i++) {
+        g.step(1 / 60);
+        g.enemies = [e]; // ตัดศัตรูของเวฟที่เกิดเองออก ให้ยิงเป้าเดียว
+      }
+      const ratio = (1e12 - e.hp) / 60 / towerStats(id).dps;
+      expect(ratio, id).toBeGreaterThan(0.93);
+      expect(ratio, id).toBeLessThan(1.07);
+    }
   });
 });
 

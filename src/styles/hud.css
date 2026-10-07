@@ -41,7 +41,7 @@
 .tbtn .tc { color: var(--gold); font-weight: bold; }
 .tbtn .ts { color: var(--green-soft); font-size: 0.68rem; margin-top: auto; }
 
-#info { background: var(--chip-bg); border: 1px solid var(--chip-border); border-radius: 0.45rem; padding: 0.45rem; font-size: 0.8rem; min-height: 4.6rem; color: var(--green-mid); line-height: 1.6; }
+#info { background: var(--chip-bg); border: 1px solid var(--chip-border); border-radius: 0.45rem; padding: 0.45rem; font-size: 0.8rem; min-height: 4.6rem; color: var(--green-mid); line-height: 1.6; flex-shrink: 0; /* จอเตี้ยห้ามบีบจนบรรทัดล่างล้นไปใต้ปุ่ม */ }
 #acts { display: none; flex-direction: column; gap: 0.25rem; }
 
 /* หยุดชั่วคราว */

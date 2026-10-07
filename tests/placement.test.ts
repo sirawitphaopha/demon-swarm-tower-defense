@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { Cell, ROWS, SPAWN_ROW } from '../src/config/constants';
+import { Cell, ROWS, SPAWN_ROW, START_GOLD } from '../src/config/constants';
+import { TOWERS } from '../src/config/towers';
 import { generateMap } from '../src/core/mapgen';
 import { mulberry32 } from '../src/core/rng';
 import { emptyMap, newGame, runSeconds } from './helpers';
@@ -9,7 +10,7 @@ describe('Game.place', () => {
     const g = newGame();
     const res = g.place('stone', 10, 5);
     expect(res.ok).toBe(true);
-    expect(g.gold).toBe(150);
+    expect(g.gold).toBe(START_GOLD - TOWERS.stone.cost);
     expect(g.towers).toHaveLength(1);
     expect(g.grid.get(10, 5)).toBe(Cell.Tower);
     const ev = g.drainEvents().map((e) => e.type);

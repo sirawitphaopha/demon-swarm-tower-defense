@@ -47,7 +47,7 @@ test('เมนู → เล่นเกม: วาง/อัปเกรด/�
   const p = await screen(page, 10, 6);
   await page.mouse.click(p.x, p.y);
   await expect.poll(async () => (await state(page)).towers.length).toBe(1);
-  expect((await state(page)).gold).toBe(150);
+  expect((await state(page)).gold).toBe(250); // เงินเริ่ม 300 − หินขว้าง 50
 
   // วางในโซนห้าม → ไม่ได้ + มี toast
   const g = await screen(page, 0, 6);

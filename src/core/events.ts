@@ -8,6 +8,8 @@ export type GameEvent =
   | { type: 'enemyKilled'; id: number; kind: EnemyId; x: number; y: number; towerId: number }
   | { type: 'enemyLeaked'; id: number; kind: EnemyId; x: number; y: number }
   | { type: 'towerFired'; towerId: number; kind: TowerId; aoe: boolean }
+  | { type: 'towerReloading'; towerId: number }
+  | { type: 'towerReloaded'; towerId: number }
   | { type: 'projectileImpact'; kind: TowerId; x: number; y: number; aoe: number }
   | { type: 'towerPlaced'; id: number; kind: TowerId; c: number; r: number }
   | { type: 'towerUpgraded'; id: number; kind: TowerId }

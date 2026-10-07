@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { HIT_FLASH_SEC } from '../config/constants';
+import { COLS, HIT_FLASH_SEC, ROWS } from '../config/constants';
 import { ENEMIES, ENEMY_ORDER, type EnemyId } from '../config/enemies';
 import { QUALITY, type Quality } from '../config/quality';
 import { TORDER, TOWERS, type TowerId } from '../config/towers';
@@ -66,6 +66,32 @@ interface ProjAnim {
   Z: number;
 }
 
+/** วงเติมกระสุนรอบฐานป้อม: ส่วนที่สว่างเพิ่มตามเข็มนาฬิกาจนครบวงเมื่อเติมเสร็จ */
+function createReloadRingMaterial(): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    uniforms: { uFill: { value: new THREE.Color('#ffb02e').multiplyScalar(1.6) }, uTrack: { value: new THREE.Color('#2a2a2a') } },
+    vertexShader: `attribute float aProg;
+varying float vProg;
+varying vec2 vLocal;
+void main() {
+  vProg = aProg;
+  vLocal = position.xz;
+  gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+}`,
+    fragmentShader: `uniform vec3 uFill;
+uniform vec3 uTrack;
+varying float vProg;
+varying vec2 vLocal;
+void main() {
+  float a = atan(vLocal.x, -vLocal.y);
+  float f = a / 6.2831853 + (a < 0.0 ? 1.0 : 0.0);
+  gl_FragColor = f <= vProg ? vec4(uFill, 0.95) : vec4(uTrack, 0.5);
+}`,
+  });
+}
+
 const PROJ_SHAPES: Record<TowerId, { geo: () => THREE.BufferGeometry; color: string; k: number; arc: number }> = {
   stone: { geo: () => new THREE.DodecahedronGeometry(0.08, 0), color: '#8a8478', k: 1, arc: 0.7 },
   arrow: { geo: () => new THREE.BoxGeometry(0.34, 0.025, 0.025), color: '#9ae070', k: 1.6, arc: 0.15 },
@@ -89,6 +115,8 @@ export class UnitsView {
   private barBg: THREE.InstancedMesh;
   private barFill: THREE.InstancedMesh;
   private blobs: THREE.InstancedMesh;
+  private reloadRing: THREE.InstancedMesh;
+  private reloadProg: THREE.InstancedBufferAttribute;
   private yaw = new Map<number, number>();
   private towerAnim = new Map<number, TowerAnim>();
   private projAnim = new Map<number, ProjAnim>();
@@ -135,6 +163,16 @@ export class UnitsView {
     this.blobs.frustumCulled = false;
     this.blobs.renderOrder = 2;
     this.group.add(this.blobs);
+    // วงเติมกระสุน (ป้อมหนึ่งช่อง → ความจุเท่าจำนวนช่องทั้งสนาม)
+    const ringCap = COLS * ROWS;
+    const ringGeo = new THREE.RingGeometry(0.46, 0.62, 48).rotateX(-Math.PI / 2);
+    this.reloadProg = new THREE.InstancedBufferAttribute(new Float32Array(ringCap), 1);
+    ringGeo.setAttribute('aProg', this.reloadProg);
+    this.reloadRing = new THREE.InstancedMesh(ringGeo, createReloadRingMaterial(), ringCap);
+    this.reloadRing.count = 0;
+    this.reloadRing.frustumCulled = false;
+    this.reloadRing.renderOrder = 4;
+    this.group.add(this.reloadRing);
     this.setQuality(quality);
   }
 
@@ -323,8 +361,8 @@ export class UnitsView {
       m.count = 0;
       m.visible = false;
     }
-    this.barBg.count = this.barFill.count = this.blobs.count = 0;
-    this.barBg.visible = this.barFill.visible = this.blobs.visible = false;
+    this.barBg.count = this.barFill.count = this.blobs.count = this.reloadRing.count = 0;
+    this.barBg.visible = this.barFill.visible = this.blobs.visible = this.reloadRing.visible = false;
   }
 
   /** ตำแหน่งศัตรูที่คำนวณระหว่างเฟรม */
@@ -396,6 +434,23 @@ export class UnitsView {
       const n = counts.get(id)!;
       for (const p of [this.towerBase.get(id)!, this.towerHead.get(id)!]) this.commit(p, n);
     }
+    this.updateReloadRings(game);
+  }
+
+  /** วงเติมกระสุนใต้ป้อมที่ยิงหมดชุดแล้ว */
+  private updateReloadRings(game: Game): void {
+    let n = 0;
+    for (const tw of game.towers) {
+      if (tw.reloadLeft <= 0) continue;
+      tmpM.makeTranslation(wx(tw.x), 0.05, wz(tw.y));
+      this.reloadRing.setMatrixAt(n, tmpM);
+      this.reloadProg.setX(n, 1 - tw.reloadLeft / tw.def.reload);
+      n++;
+    }
+    this.reloadRing.count = n;
+    this.reloadRing.visible = n > 0;
+    this.reloadRing.instanceMatrix.needsUpdate = true;
+    this.reloadProg.needsUpdate = true;
   }
 
   private commit(p: Pool, n: number): void {
@@ -580,6 +635,7 @@ export class UnitsView {
     this.wingMat.dispose();
     this.outlineMat.dispose();
     this.depthMat.dispose();
+    (this.reloadRing.material as THREE.Material).dispose();
     for (const m of this.projMeshes.values()) (m.material as THREE.Material).dispose();
   }
 }

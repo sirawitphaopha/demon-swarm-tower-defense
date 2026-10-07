@@ -272,7 +272,7 @@ export class Codex {
       barChart(
         TORDER.map((id) => ({ label: `${TOWERS[id].emoji} ${TOWERS[id].name}`, value: towerStats(id).dps, display: `${num(towerStats(id).dps, 1)} /วิ` })),
         'ดาเมจต่อวินาที (DPS)',
-        'ดาเมจต่อนัด × นัดต่อวินาที (ต่อเป้าหนึ่งตัว)',
+        'ระยะยาว รวมเวลาหยุดเติมกระสุน (ต่อเป้าหนึ่งตัว)',
       ),
       barChart(
         TORDER.map((id) => ({ label: `${TOWERS[id].emoji} ${TOWERS[id].name}`, value: towerStats(id).dpsPerGold, display: num(towerStats(id).dpsPerGold, 3) })),
@@ -292,11 +292,11 @@ export class Codex {
         )
         .join('')}</div></section>
       <section class="cx-section"><h3>📋 ตารางค่าพลังทั้งหมด</h3><div class="cx-scroll"><table class="cx-table num">
-      <thead><tr><th>ป้อม</th><th>ราคา</th><th>ระยะยิง</th><th>ดาเมจ/นัด</th><th>นัด/วิ</th><th>DPS</th><th>DPS/ทอง</th><th>ระเบิด</th><th>กระสุน (ช่อง/วิ)</th></tr></thead>
+      <thead><tr><th>ป้อม</th><th>ราคา</th><th>ระยะยิง</th><th>ดาเมจ/นัด</th><th>นัด/วิ</th><th>กระสุน/ชุด</th><th>เติม (วิ)</th><th>DPS รัว</th><th>DPS ระยะยาว</th><th>DPS/ทอง</th><th>ระเบิด</th><th>กระสุน (ช่อง/วิ)</th></tr></thead>
       <tbody>${TORDER.map((id) => {
         const t = TOWERS[id];
         const s = towerStats(id);
-        return `<tr><td><a href="${PREFIX}/towers/${id}">${t.emoji} ${t.name}</a></td><td>${t.cost}</td><td>${t.range}</td><td>${t.dmg}</td><td>${t.rate}</td><td>${num(s.dps, 1)}</td><td>${num(s.dpsPerGold, 3)}</td><td>${t.aoe ? `${t.aoe} ช่อง` : '-'}</td><td>${num(s.pspd, 1)}</td></tr>`;
+        return `<tr><td><a href="${PREFIX}/towers/${id}">${t.emoji} ${t.name}</a></td><td>${t.cost}</td><td>${t.range}</td><td>${t.dmg}</td><td>${t.rate}</td><td>${t.mag}</td><td>${t.reload}</td><td>${num(s.burstDps, 1)}</td><td>${num(s.dps, 1)}</td><td>${num(s.dpsPerGold, 3)}</td><td>${t.aoe ? `${t.aoe} ช่อง` : '-'}</td><td>${num(s.pspd, 1)}</td></tr>`;
       }).join('')}</tbody></table></div></section>`),
     );
   }
@@ -371,7 +371,7 @@ export class Codex {
         <h2>${t.emoji} ${t.name}</h2><p class="role">${txt.role} · ขั้นที่ ${s.tier} ของสายอัปเกรด</p><p>${txt.lore}</p>
         <dl class="cx-statgrid">
           ${stat('ราคา', `💰 ${t.cost}`)}${stat('ระยะยิง', `${t.range} ช่อง`)}${stat('ดาเมจต่อนัด', String(t.dmg))}${stat('นัดต่อวินาที', String(t.rate))}
-          ${stat('DPS', num(s.dps, 1))}${stat('DPS ต่อทอง', num(s.dpsPerGold, 3))}${stat('ระเบิด', t.aoe ? `รัศมี ${t.aoe} ช่อง` : 'ไม่มี')}${stat('ความเร็วกระสุน', `${num(s.pspd, 1)} ช่อง/วิ`)}
+          ${stat('กระสุนต่อชุด', `${t.mag} นัด`)}${stat('เวลาเติมกระสุน', `${t.reload} วิ`)}${stat('DPS ขณะยิงรัว', num(s.burstDps, 1))}${stat('DPS ระยะยาว', num(s.dps, 1))}${stat('DPS ต่อทอง', num(s.dpsPerGold, 3))}${stat('ระเบิด', t.aoe ? `รัศมี ${t.aoe} ช่อง` : 'ไม่มี')}${stat('ความเร็วกระสุน', `${num(s.pspd, 1)} ช่อง/วิ`)}
           ${stat('cooldown', `${num(s.cooldown, 2)} วิ`)}${stat('ขายได้ (วางตรง)', `💰 ${chain.sellDirect}`)}${stat('ต้นทุนถ้าอัปเกรดไล่มา', `💰 ${chain.cumulative}`)}${stat('อัปเกรดเป็น', t.upgTo ? `${TOWERS[t.upgTo].emoji} ${TOWERS[t.upgTo].name} (💰${TOWERS[t.upgTo].cost})` : '🏆 ขั้นสูงสุด')}
         </dl>
         <h3>💡 เคล็ดลับ</h3><ul>${txt.tips.map((x) => `<li>${x}</li>`).join('')}</ul>
@@ -465,7 +465,7 @@ export class Codex {
     const icons = (pool: readonly EnemyId[]) => pool.map((p) => `<a href="${PREFIX}/enemies/${p}" title="${ENEMIES[p].name}">${ENEMIES[p].emoji}</a>`).join(' ');
     this.main.appendChild(
       frag(`<section class="cx-section"><h3>🏁 โหมด 10 เวฟ</h3>
-      <p>แต่ละเวฟปล่อยศัตรูต่อเนื่องตามเวลาที่กำหนด สุ่มชนิดจากรายการ เวฟจบเมื่อหมดเวลาและไม่มีศัตรูเหลือบนสนาม จากนั้นมีช่วงพัก</p>
+      <p>แต่ละเวฟปล่อยศัตรูต่อเนื่องตามเวลาที่กำหนด สุ่มชนิดจากรายการ หมดเวลาแล้วเวฟถัดไปมาต่อทันทีไม่มีช่วงพัก (ช่วงเตรียมตัวมีครั้งเดียวก่อน Wave 1) ชนะเมื่อ Wave 10 ปล่อยศัตรูครบและไม่มีศัตรูเหลือบนสนาม</p>
       <div class="cx-scroll"><table class="cx-table num">
       <thead><tr><th>Wave</th><th>เวลา (วิ)</th><th>เกิดทุก (วิ)</th><th>จำนวนศัตรู</th><th>บอส</th><th>เลือด ×</th><th>ชนิดศัตรู</th><th>เงินรวมโดยประมาณ</th></tr></thead>
       <tbody>${waveTable()

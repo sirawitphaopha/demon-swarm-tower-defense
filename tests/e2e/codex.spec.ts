@@ -98,7 +98,7 @@ test('ตัวอย่างหาทาง: วางกำแพงแล้
   await page.selectOption('#cxCalcEnemy', 'boss');
   await page.fill('#cxCalcWave', '10');
   await page.locator('input[name=cxCalcDiff][value=hard]').check();
-  await expect(page.locator('#cxCalcOut .cx-stat b').first()).toHaveText((1100 * 3 * 1.4).toLocaleString('th-TH', { maximumFractionDigits: 0 }));
+  await expect(page.locator('#cxCalcOut .cx-stat b').first()).toHaveText((1100 * 4.8 * 1.4).toLocaleString('th-TH', { maximumFractionDigits: 0 }));
   expect(errors).toEqual([]);
 });
 

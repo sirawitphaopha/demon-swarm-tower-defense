@@ -45,11 +45,11 @@ config ← core ← storage ← {render, ui, audio, editor, codex} ← app
 
 | สิ่งที่ต้องการแก้ | ไฟล์ / ตัวแปร |
 |---|---|
-| ขนาดกริด, จุดเกิด, โซนห้ามวาง, เวลาพัก, เงิน/ชีวิตเริ่มต้น, % ขาย | `config/constants.ts` (`COLS=50, ROWS=28`, `SPAWN_ROW`, `SPAWN_GUARD`, `BREAK_SEC`, `START_GOLD`, `SELL_RATIO`) |
+| ขนาดกริด, จุดเกิด, โซนห้ามวาง, เวลาเตรียมตัวก่อน Wave 1, เงิน/ชีวิตเริ่มต้น, % ขาย | `config/constants.ts` (`COLS=50, ROWS=28`, `SPAWN_ROW`, `SPAWN_GUARD`, `BREAK_SEC`, `START_GOLD=300`, `SELL_RATIO`) |
 | **ความเร็วทั้งเกม** | `config/constants.ts` → `REF_CELL_PX` (เพิ่ม = ช้าลง) — ความเร็วใน config เขียนเป็น px/s เดิมผ่าน `px()` |
-| ป้อม (ราคา/ดาเมจ/ระยะ/เรท/อัปเกรด) | `config/towers.ts` → `TOWERS`, ลำดับ `TORDER` |
-| ศัตรู (เลือด/สปีด/รางวัล/`fly`) | `config/enemies.ts` → `ENEMIES` |
-| เวฟ | `config/waves.ts` → `WAVE_CFG` (10 เวฟ) + `getWaveCfg(n)` (โหมดไม่สิ้นสุด) |
+| ป้อม (ราคา/ดาเมจ/ระยะ/เรท/**กระสุนต่อชุด `mag`/เวลาเติม `reload`**/อัปเกรด) | `config/towers.ts` → `TOWERS`, ลำดับ `TORDER` |
+| ศัตรู (เลือด/สปีด/รางวัล/`fly`) | `config/enemies.ts` → `ENEMIES` (รางวัลลดครึ่งหนึ่งใน 0.3.1) |
+| เวฟ | `config/waves.ts` → `WAVE_CFG` (10 เวฟ ถี่ขึ้น/เลือดหนาขึ้น/บอสบ่อยขึ้นทุกเวฟ) + `getWaveCfg(n)` (โหมดไม่สิ้นสุด ต่อจาก Wave 10) |
 | ความยาก | `config/difficulty.ts` → `DIFF` |
 | ธีมแมพ (สีพื้น/ท้องฟ้า/สิ่งกีดขวาง/ของตกแต่ง/จำนวนแอ่งน้ำ) | `config/themes.ts` → `THEMES`, `THORDER` |
 | ระดับคุณภาพภาพ | `config/quality.ts` → `QUALITY` |
@@ -74,7 +74,9 @@ config ← core ← storage ← {render, ui, audio, editor, codex} ← app
 - คำสั่ง `place/upgrade/sell/cycleTarget/skipBreak` คืน **เหตุผล** (เช่น `{ok:false, reason:'gold'}`) — UI แปลงเป็นข้อความเอง (`PLACE_FAIL` ใน `ui/strings.ts`)
 - เหตุการณ์ (`core/events.ts`) สะสมในคิว → `App` ดึง `drainEvents()` ครั้งเดียวต่อเฟรม ส่งต่อ ภาพ/เสียง/UI
 - เป้า "หน้าสุด/หลังสุด" วัดจาก **ระยะทางเดินที่เหลือ** (`core/targeting.ts` → `remaining()`)
-- `gamePhase` = `'playing' | 'break'`; `wave===0` ในช่วง break = "เตรียมตัวก่อนเริ่ม"; โหมด `'normal'`/`'endless'`, ชนะเช็คด้วย `isWin()`
+- `gamePhase` = `'playing' | 'break'`; **`break` มีครั้งเดียวคือช่วงเตรียมตัวก่อน Wave 1** (`wave===0`); โหมด `'normal'`/`'endless'`, ชนะเช็คด้วย `isWin()`
+- **เวฟต่อเนื่อง**: พอเวฟปล่อยศัตรูครบ `dur` วินาที เวฟถัดไปเริ่มทันที ไม่รอเคลียร์สนาม ไม่มีพัก · Wave 10 ของโหมดปกติปล่อยครบแล้วรอสนามว่างจึงชนะ
+- **รีโหลด**: ป้อมมี `ammo` (กระสุนที่เหลือในชุด) กับ `reloadLeft` (เวลาเติมที่เหลือ) — ยิงจนหมดชุด (`def.mag`) แล้วหยุดยิง `def.reload` วินาที เติมเสร็จได้เต็มชุด · อัปเกรดแล้วเต็มชุดทันที · เหตุการณ์ `towerReloading` / `towerReloaded`
 - สุ่มด้วย `mulberry32(seed)` — URL `?seed=42` ทำให้แมพ/เกมซ้ำได้ (ใช้ทดสอบ)
 
 ### ลูป (`app/App.ts` + `app/loopMath.ts`)
@@ -87,6 +89,7 @@ config ← core ← storage ← {render, ui, audio, editor, codex} ← app
 - `WorldView` — พื้นสนาม + เนินรอบนอก + น้ำ + ต้นไม้/หิน + ของตกแต่ง + ประตู IN/OUT
 - `waterMask.ts` — น้ำทั้งสองแบบ (แอ่งสุ่ม `pondRadius` + ช่องน้ำวาดเอง) วาดลง mask เดียว → shader น้ำ/ทราย/โคลน
 - `UnitsView` — ป้อม/ศัตรู/กระสุน/แถบเลือด เป็น `InstancedMesh` ทั้งหมด เขียน matrix ใหม่ทุกเฟรม (draw call คงที่ ไม่ขึ้นกับจำนวนตัว)
+  - **วงเติมกระสุน** (`reloadRing`): วงแหวนบนพื้นรอบฐานป้อมที่กำลังเติม ส่วนสีส้มเพิ่มตามเข็มนาฬิกาตาม `1 − reloadLeft/reload` (shader ใน `createReloadRingMaterial`, attribute `aProg`) — 1 draw call ความจุ `COLS×ROWS`
 - `materials.ts` — วัสดุ toon กลาง + **ท่าเคลื่อนไหวใน vertex shader** (ขาแมลง/ปีก/หนอน/ลำกล้องหมุน/ใบไม้ไหว) ใช้ร่วมกับเส้นขอบ (inverted hull) และเงา (`customDepthMaterial`)
 - `models/` — `ModelBuilder` ประกอบรูปทรงพื้นฐานเป็น geometry เดียว พร้อม attribute `color, aGlow, aPart, aPivot, aSmooth`
 - `Overlays` — เส้นกริด (shader), กรอบช่องที่ชี้, ป้อมผี, วงระยะยิง
@@ -110,7 +113,9 @@ config ← core ← storage ← {render, ui, audio, editor, codex} ← app
 
 ### เทสต์
 - `tests/*.test.ts` (Vitest) — กติกาเกม, เล่นครบ 10 เวฟแบบ headless, การบันทึก, editor, กฎโปรเจกต์
-- `tests/codex.test.ts` — ตัวเลขสารานุกรมตรงกับการจำลองเกมจริง + ความครบของเนื้อหา
+- `tests/codex.test.ts` — ตัวเลขสารานุกรมตรงกับการจำลองเกมจริง (รวม DPS ระยะยาวที่นับเวลาเติมกระสุน เทียบกับการยิงจริง 60 วินาที) + ความครบของเนื้อหา
+- `tests/combat.test.ts` — การยิง รวมรีโหลด (ยิงครบชุด → หยุดเติม → ได้เต็มชุด, อัปเกรดระหว่างเติม) · `tests/waves.test.ts` — เวฟต่อเนื่องไม่มีพัก และความแรงที่เพิ่มขึ้นทุกเวฟ
+- `towerStats()` ใน `codex/data.ts`: `burstDps` = ดาเมจ × เรท, `dps` = ระยะยาว = ดาเมจ × mag ÷ ((mag−1)/rate + reload)
 - `tests/e2e/codex.spec.ts` — ทุกหมวด, ลิงก์ตรง, ตัวดูโมเดล, ค้นหา, ตัวอย่างหาทาง, เปิดระหว่างเล่น
 - `tests/e2e/smoke.spec.ts` (Playwright) — URL `?test=1` เปิด `window.__DSTD__` (`app/testHook.ts`) ไว้อ่าน state/แปลงช่องเป็นตำแหน่งจอ/เสกศัตรู/วัด draw call
 

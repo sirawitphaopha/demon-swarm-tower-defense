@@ -148,10 +148,12 @@ export class Hud {
     const e = this.el;
     if (tw) {
       const nxt = tw.def.upgTo ? TOWERS[tw.def.upgTo] : null;
-      const key = `t${tw.id}:${tw.kind}:${tw.kills}:${tw.target}:${g.gold >= (nxt?.cost ?? 0)}`;
+      const reloadPct = tw.reloadLeft > 0 ? Math.floor((1 - tw.reloadLeft / tw.def.reload) * 100) : -1;
+      const key = `t${tw.id}:${tw.kind}:${tw.kills}:${tw.target}:${g.gold >= (nxt?.cost ?? 0)}:${tw.ammo}:${reloadPct}`;
       if (key === this.infoKey) return;
       this.infoKey = key;
-      e.info.innerHTML = `<b>${tw.def.emoji} ${tw.def.name}</b><br>⚔️${tw.def.dmg} 📏${tw.def.range} ⏱${tw.def.rate}/s<br>💀 ฆ่า: ${tw.kills} ตัว${
+      const ammo = reloadPct >= 0 ? fmt.reloading(reloadPct) : fmt.ammo(tw.ammo, tw.def.mag);
+      e.info.innerHTML = `<b>${tw.def.emoji} ${tw.def.name}</b><br>⚔️${tw.def.dmg} 📏${tw.def.range} ⏱${tw.def.rate}/s<br>${ammo}<br>💀 ฆ่า: ${tw.kills} ตัว${
         nxt ? `<br>⬆️→${nxt.emoji}${nxt.name} (${nxt.cost}g)` : `<br>${S.maxLevel}`
       }`;
       setDisplay(e.acts, 'flex');
@@ -167,7 +169,7 @@ export class Hud {
       if (key === this.infoKey) return;
       this.infoKey = key;
       const t = TOWERS[selType];
-      e.info.innerHTML = `<b>${t.emoji} ${t.name}</b><br>💰${t.cost} | 📏${t.range} | ⚔️${t.dmg}<br>⏱${t.rate}นัด/วิ${t.aoe ? ' | 💥AOE' : ''}<br><i>${t.desc}</i>`;
+      e.info.innerHTML = `<b>${t.emoji} ${t.name}</b><br>💰${t.cost} | 📏${t.range} | ⚔️${t.dmg}<br>⏱${t.rate}นัด/วิ${t.aoe ? ' | 💥AOE' : ''}<br>${fmt.magInfo(t.mag, t.reload)}<br><i>${t.desc}</i>`;
       return;
     }
     if (this.infoKey !== 'idle') {

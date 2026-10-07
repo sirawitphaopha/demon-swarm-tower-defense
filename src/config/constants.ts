@@ -9,7 +9,7 @@ export const SPAWN_GUARD = 2;
 /** เวลาพักระหว่างเวฟ (วินาที) */
 export const BREAK_SEC = 18;
 
-export const START_GOLD = 200;
+export const START_GOLD = 300;
 export const START_LIVES = 20;
 /** สัดส่วนเงินคืนเมื่อขายป้อม (คิดจากเงินที่ลงไปทั้งหมดรวมอัปเกรด) */
 export const SELL_RATIO = 0.5;
